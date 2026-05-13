@@ -45,7 +45,7 @@ The backend uses `SUPABASE_SERVICE_ROLE_KEY` to write verified premium status. U
 ## Supabase Auth Sessions
 
 When `CRYPTEDMAIL_TEST_MODE=false`, premium routes require a real Supabase login token.
-The app uses the normal email/password form and, when Supabase is configured, stores the Supabase access token locally for protected `/api/dapp/*` calls.
+The app uses the normal email/password form and, when Supabase is configured, stores the Supabase access token locally for protected flat `/api/dapp-*` calls.
 
 In Supabase, open Authentication -> Providers -> Email and enable email/password signups.
 For the smoothest launch demo, leave email confirmation off until your real email-sending domain is configured.
@@ -75,8 +75,8 @@ http://127.0.0.1:8787/index.html
 
 ## Reliability
 
-The frontend records pending transaction hashes with `/api/dapp/record-pending`.
-If a user refreshes or disconnects, `/api/cron/reconcile` can verify pending payments later.
+The frontend records pending transaction hashes with `/api/dapp-record-pending`.
+If a user refreshes or disconnects, `/api/cron-reconcile` can verify pending payments later.
 Protect that endpoint with `CRON_SECRET`.
 
 ## Security

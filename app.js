@@ -1071,7 +1071,7 @@ async function connectWallet() {
     state.connectedWalletProvider = provider;
     state.connectedWalletAddress = wallet;
     await switchToConfiguredNetwork(provider);
-    await apiPost("/api/dapp/connect-wallet", { email: state.profile.address, walletAddress: wallet });
+    await apiPost("/api/dapp-connect-wallet", { email: state.profile.address, walletAddress: wallet });
 
     state.profile.walletAddress = wallet;
     state.profile.walletConnectedAt = Date.now();
@@ -1100,7 +1100,7 @@ async function verifyMembership(plan) {
       return;
     }
 
-    const result = await apiPost("/api/dapp/verify-membership", {
+    const result = await apiPost("/api/dapp-verify-membership", {
       email: state.profile.address,
       walletAddress: state.profile.walletAddress,
       tierId: plan
@@ -1151,7 +1151,7 @@ function sendCryptoTip() {
 
 async function loadDappConfig() {
   try {
-    state.dappConfig = await apiGet("/api/dapp/config");
+    state.dappConfig = await apiGet("/api/dapp-config");
     renderDappCheckout();
   } catch (error) {
     state.dappConfig = null;
@@ -1164,7 +1164,7 @@ async function syncBackendSubscription() {
   }
 
   try {
-    const payload = await apiGet(`/api/dapp/subscription?email=${encodeURIComponent(state.profile.address)}`);
+    const payload = await apiGet(`/api/dapp-subscription?email=${encodeURIComponent(state.profile.address)}`);
     if (payload.user?.subscription?.status === "premium") {
       applyPremiumFromServer(payload.user);
     }
@@ -1332,14 +1332,14 @@ async function sendUsdcPayment() {
     state.pendingCheckoutTx = txHash;
     setDappStatus("Transaction sent. Waiting for backend verification...", "Sent");
     renderDappCheckout();
-    await apiPost("/api/dapp/record-pending", {
+    await apiPost("/api/dapp-record-pending", {
       email: state.profile.address,
       walletAddress: wallet,
       txHash,
       tierId: state.pendingCheckoutTier
     });
 
-    const result = await apiPost("/api/dapp/verify-payment", {
+    const result = await apiPost("/api/dapp-verify-payment", {
       email: state.profile.address,
       walletAddress: wallet,
       txHash,

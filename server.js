@@ -57,18 +57,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 }
 
 async function routeApi(req, res, url) {
-  if (req.method === "GET" && url.pathname === "/api/health") {
+  const pathname = apiAlias(url.pathname);
+
+  if (req.method === "GET" && pathname === "/api/health") {
     sendJson(res, 200, { ok: true });
     return;
   }
 
-  if (req.method === "GET" && url.pathname === "/api/dapp/config") {
+  if (req.method === "GET" && pathname === "/api/dapp/config") {
     const config = await loadConfig();
     sendJson(res, 200, publicConfig(config));
     return;
   }
 
-  if (req.method === "GET" && url.pathname === "/api/dapp/subscription") {
+  if (req.method === "GET" && pathname === "/api/dapp/subscription") {
     const config = await loadConfig();
     const auth = await requireAuthenticatedUser(req, {}, url, config);
     const user = await getStoredUser(auth.email);
@@ -80,7 +82,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/dapp/connect-wallet") {
+  if (req.method === "POST" && pathname === "/api/dapp/connect-wallet") {
     const body = await readJsonBody(req);
     const config = await loadConfig();
     const auth = await requireAuthenticatedUser(req, body, url, config);
@@ -91,7 +93,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/dapp/record-pending") {
+  if (req.method === "POST" && pathname === "/api/dapp/record-pending") {
     const body = await readJsonBody(req);
     const config = await loadConfig();
     const auth = await requireAuthenticatedUser(req, body, url, config);
@@ -107,7 +109,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/dapp/verify-payment") {
+  if (req.method === "POST" && pathname === "/api/dapp/verify-payment") {
     const body = await readJsonBody(req);
     const config = await loadConfig();
     const auth = await requireAuthenticatedUser(req, body, url, config);
@@ -158,7 +160,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/dapp/verify-membership") {
+  if (req.method === "POST" && pathname === "/api/dapp/verify-membership") {
     const body = await readJsonBody(req);
     const config = await loadConfig();
     const auth = await requireAuthenticatedUser(req, body, url, config);
@@ -193,7 +195,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/cron/reconcile") {
+  if (req.method === "POST" && pathname === "/api/cron/reconcile") {
     if (!isCron(req)) {
       sendJson(res, 401, { error: "cron_secret_required" });
       return;
@@ -203,7 +205,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "GET" && url.pathname === "/api/admin/config") {
+  if (req.method === "GET" && pathname === "/api/admin/config") {
     if (!isAdmin(req)) {
       sendJson(res, 401, { error: "admin_token_required" });
       return;
@@ -212,7 +214,7 @@ async function routeApi(req, res, url) {
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/admin/config") {
+  if (req.method === "POST" && pathname === "/api/admin/config") {
     if (!isAdmin(req)) {
       sendJson(res, 401, { error: "admin_token_required" });
       return;
@@ -241,6 +243,21 @@ async function serveStatic(res, pathname) {
   const ext = path.extname(filePath);
   res.writeHead(200, { "content-type": mimeTypes[ext] || "application/octet-stream" });
   res.end(content);
+}
+
+function apiAlias(pathname) {
+  const aliases = {
+    "/api/dapp-config": "/api/dapp/config",
+    "/api/dapp-subscription": "/api/dapp/subscription",
+    "/api/dapp-connect-wallet": "/api/dapp/connect-wallet",
+    "/api/dapp-record-pending": "/api/dapp/record-pending",
+    "/api/dapp-verify-payment": "/api/dapp/verify-payment",
+    "/api/dapp-verify-membership": "/api/dapp/verify-membership",
+    "/api/cron-reconcile": "/api/cron/reconcile",
+    "/api/admin-config": "/api/admin/config"
+  };
+
+  return aliases[pathname] || pathname;
 }
 
 async function verifyUsdcPayment({ config, tierId, tier, walletAddress, txHash }) {
