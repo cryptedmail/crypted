@@ -31,6 +31,8 @@ const state = {
 
 const els = {
   refreshBrand: document.querySelector("#refreshBrand"),
+  navMenuButton: document.querySelector("#navMenuButton"),
+  marketingNav: document.querySelector("#marketingNav"),
   homeLoginButton: document.querySelector("#homeLoginButton"),
   homeSignupButton: document.querySelector("#homeSignupButton"),
   heroLoginButton: document.querySelector("#heroLoginButton"),
@@ -173,6 +175,22 @@ function bindEvents() {
   els.refreshBrand.addEventListener("click", (event) => {
     event.preventDefault();
     openMailboxHome();
+  });
+
+  els.navMenuButton.addEventListener("click", () => {
+    const isOpen = document.body.classList.toggle("nav-open");
+    els.navMenuButton.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.querySelectorAll(".marketing-nav a, .home-footer a").forEach((link) => {
+    link.addEventListener("click", () => {
+      document.body.classList.remove("nav-open");
+      els.navMenuButton.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  document.querySelectorAll("[data-auth-action]").forEach((button) => {
+    button.addEventListener("click", () => focusAuthMode(button.dataset.authAction || "signup"));
   });
 
   [els.homeSignupButton, els.heroSignupButton, els.signupTab].forEach((button) => {

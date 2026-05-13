@@ -36,6 +36,21 @@
           </span>
         </a>
 
+        <button class="menu-button" id="navMenuButton" type="button" aria-label="Open site menu" aria-expanded="false" aria-controls="marketingNav">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="marketing-nav" id="marketingNav" aria-label="Site">
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#download">Download</a>
+          <a href="#blog">Blog</a>
+          <a href="#about">About us</a>
+          <a href="#support">Support</a>
+        </nav>
+
         <nav class="header-actions" aria-label="Account">
           <button class="ghost-button" id="homeLoginButton" type="button">Login</button>
           <button class="primary-button" id="homeSignupButton" type="button">Sign up</button>
@@ -57,6 +72,65 @@
             <div class="chain-strip">
               <strong>Blockchain layer</strong>
               <span>Account ownership, plan access, public keys, and deactivate receipts are verifiable. Email content stays private and off-chain.</span>
+            </div>
+
+            <section class="marketing-section" id="features" aria-labelledby="featuresTitle">
+              <div class="section-heading">
+                <p class="eyebrow">Features</p>
+                <h2 id="featuresTitle">Disposable privacy that moves faster than leaks.</h2>
+                <p>cryptedmail is built around quick exits, not permanent aliases. Keep normal email, separate every identity, lock encrypted messages to the sender and receiver, and burn an exposed address before it becomes your problem.</p>
+              </div>
+
+              <div class="feature-grid">
+                <article>
+                  <span>01</span>
+                  <h3>Burnable identities</h3>
+                  <p>Create purpose-built @cryptedmail.com addresses and deactivate any exposed address with one red confirmation.</p>
+                </article>
+                <article>
+                  <span>02</span>
+                  <h3>Receiver-locked encryption</h3>
+                  <p>Encrypted blocks can only be opened by the sender account or the intended cryptedmail recipient account.</p>
+                </article>
+                <article>
+                  <span>03</span>
+                  <h3>No seed phrase traps</h3>
+                  <p>Regular users start with email and password. Wallets are only used for blockchain upgrades and never for private keys.</p>
+                </article>
+                <article>
+                  <span>04</span>
+                  <h3>On-chain upgrade proof</h3>
+                  <p>USDC payments, premium access, and wallet ownership are verified by the backend before paid powers unlock.</p>
+                </article>
+                <article>
+                  <span>05</span>
+                  <h3>Vault admin lobby</h3>
+                  <p>Paid Vault users get color-coded addresses, mailbox skins, VIP marks, lockdown notes, and burn prep tools.</p>
+                </article>
+                <article>
+                  <span>06</span>
+                  <h3>Clean inbox first</h3>
+                  <p>The mailbox stays familiar: send from any address, switch between unified and separated inboxes, and compose like normal email.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="compare-strip" aria-labelledby="switchTitle">
+              <div>
+                <p class="eyebrow">Why switch</p>
+                <h2 id="switchTitle">Private email should let you disappear from spam fast.</h2>
+              </div>
+              <div class="switch-grid">
+                <span>Unlimited Vault aliases instead of tight paid caps</span>
+                <span>Wallet upgrades without forcing wallets on free users</span>
+                <span>Disposable-first burn controls built into the mailbox</span>
+                <span>Blockchain receipts without putting message content on-chain</span>
+              </div>
+            </section>
+
+            <div class="pricing-heading" id="pricing">
+              <p class="eyebrow">Pricing</p>
+              <h2>Start free, upgrade only when you need more identities.</h2>
             </div>
 
             <div class="plans-grid" id="plansGrid" aria-label="cryptedmail subscription plans">
@@ -88,6 +162,21 @@
                 </div>
               </article>
             </div>
+
+            <section class="terms-panel" id="terms" aria-labelledby="termsTitle">
+              <div>
+                <p class="eyebrow">Plain upgrade terms</p>
+                <h2 id="termsTitle">No lock-in maze, no seed phrases, no fake premium status.</h2>
+              </div>
+              <ul>
+                <li>Free accounts use email and password first. Wallet connection is optional until upgrading.</li>
+                <li>Secure Plus is $5/month for 10 active disposable addresses.</li>
+                <li>Vault is $10/month for unlimited disposable addresses and admin controls.</li>
+                <li>Crypto checkout uses USDC on Base by default, with Polygon kept optional.</li>
+                <li>Premium unlocks only after backend payment verification or valid membership token proof.</li>
+                <li>Access runs for the configured premium period, currently 30 days per verified payment.</li>
+              </ul>
+            </section>
 
             <section class="plan-detail-pages" aria-label="Paid plan demos">
               <article class="plan-detail-page" id="securePlusPage" data-plan="plus">
@@ -161,6 +250,114 @@
                 </div>
               </article>
             </section>
+
+            <section class="marketing-section device-section" id="download" aria-labelledby="downloadTitle">
+              <div class="section-heading">
+                <p class="eyebrow">Download</p>
+                <h2 id="downloadTitle">One mailbox, every screen.</h2>
+                <p>The web app is ready first. The app-store path is framed for iOS, Android, macOS, and Windows so cryptedmail can launch as a real product instead of a single demo page.</p>
+              </div>
+              <div class="device-grid">
+                <article>
+                  <strong>Web app</strong>
+                  <span>Live now</span>
+                  <button class="primary-button compact" type="button" data-auth-action="signup">Open web mailbox</button>
+                </article>
+                <article>
+                  <strong>iOS</strong>
+                  <span>App Store ready track</span>
+                </article>
+                <article>
+                  <strong>Android</strong>
+                  <span>Google Play ready track</span>
+                </article>
+                <article>
+                  <strong>Desktop</strong>
+                  <span>macOS and Windows roadmap</span>
+                </article>
+              </div>
+            </section>
+
+            <section class="marketing-section blog-section" id="blog" aria-labelledby="blogTitle">
+              <div class="section-heading">
+                <p class="eyebrow">Blog</p>
+                <h2 id="blogTitle">Security stories that make people want the product.</h2>
+                <p>These launch topics position cryptedmail around disposable identity, crypto payments, and real-world privacy habits.</p>
+              </div>
+              <div class="blog-grid">
+                <article>
+                  <span>Launch guide</span>
+                  <h3>Disposable email is better when it has a burn button</h3>
+                  <p>Why aliases should be temporary, organized, and easy to shut down.</p>
+                </article>
+                <article>
+                  <span>Blockchain</span>
+                  <h3>What belongs on-chain and what never should</h3>
+                  <p>Plan receipts and ownership can be public while message content stays private.</p>
+                </article>
+                <article>
+                  <span>Vault</span>
+                  <h3>How power users separate identities without chaos</h3>
+                  <p>Color coding, VIP marks, and unified or split inbox views for serious users.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="marketing-section about-section" id="about" aria-labelledby="aboutTitle">
+              <div class="section-heading">
+                <p class="eyebrow">About us</p>
+                <h2 id="aboutTitle">Built for people who need clean exits.</h2>
+                <p>cryptedmail is for creators, buyers, workers, families, crypto users, and privacy-minded people who want email to feel normal until it needs to become disposable. The mission is simple: give every online relationship its own identity, then let that identity vanish when it stops serving you.</p>
+              </div>
+              <div class="values-grid">
+                <span>No ads or inbox selling</span>
+                <span>No private-key collection</span>
+                <span>Backend-verified premium access</span>
+                <span>Disposable identity as the core product</span>
+              </div>
+            </section>
+
+            <section class="marketing-section support-section" id="support" aria-labelledby="supportTitle">
+              <div class="section-heading">
+                <p class="eyebrow">Support</p>
+                <h2 id="supportTitle">Support built around recovery, abuse, and deliverability.</h2>
+                <p>Users should know exactly what to do when a code does not arrive, a wallet payment is pending, an alias gets exposed, or a premium unlock needs verification.</p>
+              </div>
+              <div class="support-grid">
+                <article>
+                  <h3>Account help</h3>
+                  <p>Password login, session recovery, mailbox access, and safe deactivation questions.</p>
+                </article>
+                <article>
+                  <h3>Payment help</h3>
+                  <p>USDC transaction status, Base explorer links, wallet reconnects, and duplicate payment checks.</p>
+                </article>
+                <article>
+                  <h3>Abuse reports</h3>
+                  <p>Spam, phishing, impersonation, and exposed-address shutdown requests.</p>
+                </article>
+                <article>
+                  <h3>Deliverability</h3>
+                  <p>Verification codes, external domains, attachment rules, and inbox routing guidance.</p>
+                </article>
+              </div>
+            </section>
+
+            <footer class="home-footer">
+              <div>
+                <strong>cryptedmail</strong>
+                <span>Disposable encrypted email with blockchain-verified upgrades.</span>
+              </div>
+              <nav aria-label="Footer">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#download">Download</a>
+                <a href="#blog">Blog</a>
+                <a href="#about">About us</a>
+                <a href="#support">Support</a>
+                <a href="#terms">Terms</a>
+              </nav>
+            </footer>
           </div>
 
           <aside class="auth-card" aria-labelledby="authTitle">
