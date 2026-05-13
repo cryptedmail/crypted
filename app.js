@@ -55,6 +55,16 @@ const els = {
   walletProviderSelect: document.querySelector("#walletProviderSelect"),
   walletAddressInput: document.querySelector("#walletAddressInput"),
   connectWalletButton: document.querySelector("#connectWalletButton"),
+  walletHelpBox: document.querySelector("#walletHelpBox"),
+  walletHelpTitle: document.querySelector("#walletHelpTitle"),
+  walletHelpText: document.querySelector("#walletHelpText"),
+  walletInstallLink: document.querySelector("#walletInstallLink"),
+  useWalletConnectButton: document.querySelector("#useWalletConnectButton"),
+  walletConnectQrBox: document.querySelector("#walletConnectQrBox"),
+  walletConnectQrFrame: document.querySelector("#walletConnectQrFrame"),
+  walletConnectUri: document.querySelector("#walletConnectUri"),
+  copyWalletConnectUri: document.querySelector("#copyWalletConnectUri"),
+  openWalletConnectUri: document.querySelector("#openWalletConnectUri"),
   dappCheckoutBox: document.querySelector("#dappCheckoutBox"),
   dappCheckoutBadge: document.querySelector("#dappCheckoutBadge"),
   dappCheckoutPlan: document.querySelector("#dappCheckoutPlan"),
@@ -223,6 +233,11 @@ function bindEvents() {
   els.upgradeButton.addEventListener("click", openUpgradeView);
   els.backToMailboxButton.addEventListener("click", openMailboxHome);
   els.connectWalletButton.addEventListener("click", connectWallet);
+  els.useWalletConnectButton.addEventListener("click", () => {
+    els.walletProviderSelect.value = "walletconnect";
+    connectWallet();
+  });
+  els.copyWalletConnectUri.addEventListener("click", copyWalletConnectUri);
   els.dappSendPaymentButton.addEventListener("click", sendUsdcPayment);
   els.sendTipButton.addEventListener("click", sendCryptoTip);
   els.focusComposeButton.addEventListener("click", openCompose);
@@ -1092,13 +1107,16 @@ async function connectWallet() {
   }
 
   try {
+    hideWalletHelp();
     await ensureDappConfig();
-    let provider = await walletProviderFor(els.walletProviderSelect.value);
+    const requestedProvider = els.walletProviderSelect.value;
+    let provider = await walletProviderFor(requestedProvider);
     if (!provider && els.walletProviderSelect.value !== "walletconnect" && state.dappConfig?.walletConnectConfigured) {
-      els.walletProviderSelect.value = "walletconnect";
-      provider = await walletProviderFor("walletconnect");
+      showWalletHelp(requestedProvider);
+      return;
     }
     if (!provider) {
+      showWalletHelp(requestedProvider);
       showToast("Selected wallet was not found");
       return;
     }
@@ -1129,6 +1147,9 @@ async function connectWallet() {
   } catch (error) {
     setDappStatus(error.message || "Wallet connection failed", "Error");
     showToast("Wallet connection failed");
+    if (/not found|not installed|provider/i.test(error.message || "")) {
+      showWalletHelp(els.walletProviderSelect.value);
+    }
   }
 }
 
@@ -1138,6 +1159,62 @@ function scrollToWalletConnect() {
   els.connectWalletButton?.focus({ preventScroll: true });
   document.body.classList.add("wallet-attention");
   window.setTimeout(() => document.body.classList.remove("wallet-attention"), 2200);
+}
+
+function showWalletHelp(kind) {
+  const label = walletProviderLabel(kind);
+  const link = walletOpenLink(kind);
+  els.walletHelpBox.hidden = false;
+  els.walletHelpTitle.textContent = `${label} not detected`;
+  els.walletHelpText.textContent = `${label} only connects when its browser extension or in-app browser is available. Open/install it, or use WalletConnect for a QR/link connection.`;
+  els.walletInstallLink.hidden = !link;
+  els.walletInstallLink.href = link || "#";
+  els.walletInstallLink.textContent = walletInstallText(kind);
+  els.walletStatus.textContent = `${label} not detected. WalletConnect is available.`;
+  setDappStatus(`${label} was not detected. Use WalletConnect or open the wallet app.`, "Wallet");
+}
+
+function hideWalletHelp() {
+  els.walletHelpBox.hidden = true;
+}
+
+function walletProviderLabel(kind) {
+  if (kind === "coinbase") {
+    return "Coinbase Wallet";
+  }
+  if (kind === "walletconnect") {
+    return "WalletConnect";
+  }
+  return "MetaMask";
+}
+
+function walletInstallText(kind) {
+  if (kind === "coinbase") {
+    return isMobileDevice() ? "Open Coinbase Wallet" : "Install Coinbase Wallet";
+  }
+  if (kind === "metamask") {
+    return isMobileDevice() ? "Open MetaMask" : "Install MetaMask";
+  }
+  return "Open wallet";
+}
+
+function walletOpenLink(kind) {
+  const current = window.location.href;
+  if (kind === "metamask") {
+    return isMobileDevice()
+      ? `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`
+      : "https://metamask.io/download/";
+  }
+  if (kind === "coinbase") {
+    return isMobileDevice()
+      ? `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(current)}`
+      : "https://www.coinbase.com/wallet/downloads";
+  }
+  return "";
+}
+
+function isMobileDevice() {
+  return /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 }
 
 async function verifyMembership(plan) {
@@ -1259,6 +1336,10 @@ function discoverInjectedWallets() {
   } else if (window.ethereum?.isCoinbaseWallet) {
     state.walletProviders.coinbase = window.ethereum;
   }
+
+  if (window.coinbaseWalletExtension) {
+    state.walletProviders.coinbase = window.coinbaseWalletExtension;
+  }
 }
 
 async function walletProviderFor(kind) {
@@ -1281,7 +1362,7 @@ async function walletConnectProvider() {
     projectId: config.walletConnectProjectId,
     chains: [config.network.chainId],
     optionalChains: Object.values(config.networks || {}).map((network) => network.chainId),
-    showQrModal: true,
+    showQrModal: false,
     rpcMap: Object.fromEntries(Object.values(config.networks || {}).map((network) => [network.chainId, network.rpcUrl])),
     metadata: {
       name: "cryptedmail",
@@ -1290,8 +1371,61 @@ async function walletConnectProvider() {
       icons: []
     }
   });
+  provider.on?.("display_uri", (uri) => {
+    renderWalletConnectUri(uri);
+  });
   await provider.enable();
   return provider;
+}
+
+async function renderWalletConnectUri(uri) {
+  els.walletConnectQrBox.hidden = false;
+  els.walletConnectUri.value = uri;
+  els.openWalletConnectUri.href = uri;
+  els.walletConnectQrFrame.innerHTML = "";
+  els.walletStatus.textContent = "WalletConnect pairing link ready.";
+  setDappStatus("Scan the QR or open the WalletConnect link in your wallet app.", "QR ready");
+
+  try {
+    const qr = await import("https://esm.sh/qrcode@1.5.4");
+    const toDataURL = qr.toDataURL || qr.default?.toDataURL;
+    const dataUrl = await toDataURL(uri, {
+      margin: 1,
+      width: 240,
+      color: {
+        dark: "#031006",
+        light: "#f2fff5"
+      }
+    });
+    const image = document.createElement("img");
+    image.src = dataUrl;
+    image.alt = "WalletConnect QR code";
+    els.walletConnectQrFrame.append(image);
+  } catch (error) {
+    const image = document.createElement("img");
+    image.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(uri)}`;
+    image.alt = "WalletConnect QR code";
+    els.walletConnectQrFrame.append(image);
+  }
+
+  els.walletConnectQrBox.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function copyWalletConnectUri() {
+  const uri = els.walletConnectUri.value.trim();
+  if (!uri) {
+    showToast("WalletConnect link is not ready yet");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(uri);
+    showToast("WalletConnect link copied");
+  } catch (error) {
+    els.walletConnectUri.focus();
+    els.walletConnectUri.select();
+    showToast("Select and copy the WalletConnect link");
+  }
 }
 
 async function switchToConfiguredNetwork(provider) {

@@ -1106,6 +1106,57 @@ body.vault-prestige .plan-dashboard {
   line-height: 1.35;
 }
 
+.wallet-help-box,
+.walletconnect-qr-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid rgba(118, 216, 255, 0.34);
+  border-radius: 8px;
+  background: rgba(4, 9, 7, 0.92);
+}
+
+.wallet-help-box[hidden],
+.walletconnect-qr-box[hidden] {
+  display: none;
+}
+
+.wallet-help-box strong,
+.walletconnect-qr-box strong {
+  color: #effff4;
+}
+
+.wallet-help-box p {
+  margin: 0;
+  color: #bdd7c8;
+  line-height: 1.45;
+}
+
+.walletconnect-qr-frame {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f2fff5;
+}
+
+.walletconnect-qr-frame img {
+  display: block;
+  width: min(240px, 100%);
+  height: auto;
+  border-radius: 6px;
+}
+
+.walletconnect-qr-box textarea {
+  min-height: 76px;
+  resize: vertical;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
 .dapp-checkout-box {
   margin-top: 14px;
   border-color: rgba(118, 216, 255, 0.36);

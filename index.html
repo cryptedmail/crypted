@@ -270,6 +270,23 @@
                   <button class="primary-button compact" id="connectWalletButton" type="button">Connect Wallet</button>
                 </div>
                 <small class="wallet-safety-note">cryptedmail never asks for or stores seed phrases, recovery phrases, or private keys.</small>
+                <div class="wallet-help-box" id="walletHelpBox" hidden>
+                  <strong id="walletHelpTitle">Wallet help</strong>
+                  <p id="walletHelpText">Choose a wallet provider to continue.</p>
+                  <div class="wallet-action-row">
+                    <a class="ghost-button compact" id="walletInstallLink" href="#" target="_blank" rel="noreferrer" hidden>Open wallet</a>
+                    <button class="ghost-button compact" id="useWalletConnectButton" type="button">Use WalletConnect</button>
+                  </div>
+                </div>
+                <div class="walletconnect-qr-box" id="walletConnectQrBox" hidden>
+                  <strong>Scan with your wallet app</strong>
+                  <div class="walletconnect-qr-frame" id="walletConnectQrFrame"></div>
+                  <textarea id="walletConnectUri" readonly aria-label="WalletConnect pairing URI"></textarea>
+                  <div class="wallet-action-row">
+                    <button class="ghost-button compact" id="copyWalletConnectUri" type="button">Copy link</button>
+                    <a class="primary-button compact" id="openWalletConnectUri" href="#" target="_blank" rel="noreferrer">Open on this device</a>
+                  </div>
+                </div>
               </div>
 
               <div class="wallet-action-row">
