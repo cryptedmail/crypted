@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check app.js && node --check server.js",
-    "build": "npm run check",
-    "deploy:ready": "npm run check"
+    "check": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done",
+    "build": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done",
+    "deploy:ready": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done"
   }
 }
