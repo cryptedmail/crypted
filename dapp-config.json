@@ -2,7 +2,7 @@
   "activeNetwork": "base",
   "testMode": true,
   "receivingAddress": "0x0e1ed12CE5145E8135bE7f1aADDD59a698BaA421",
-  "walletConnectProjectId": "REPLACE_WITH_WALLETCONNECT_PROJECT_ID",
+  "walletConnectProjectId": "61c889d24ac2f576ef9422e46bb2809a",
   "premiumAccessDays": 30,
   "minConfirmations": 1,
   "tiers": {
