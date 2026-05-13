@@ -181,11 +181,11 @@ function bindEvents() {
   });
 
   document.querySelectorAll(".plan-purchase").forEach((button) => {
-    button.addEventListener("click", () => openPurchase(button.dataset.plan || "plus"));
+    button.addEventListener("click", () => beginCryptoUpgrade(button.dataset.plan || "plus"));
   });
 
   document.querySelectorAll(".crypto-pay").forEach((button) => {
-    button.addEventListener("click", () => startPlanPayment(button.dataset.plan || "plus", "crypto"));
+    button.addEventListener("click", () => beginCryptoUpgrade(button.dataset.plan || "plus"));
   });
 
   document.querySelectorAll(".card-pay").forEach((button) => {
@@ -291,11 +291,26 @@ function startPlanPayment(plan, method) {
   }
 
   if (method === "crypto") {
-    prepareDappCheckout(plan);
+    beginCryptoUpgrade(plan);
     return;
   }
 
   openPurchase(plan, method);
+}
+
+function beginCryptoUpgrade(plan) {
+  const tier = plan === "vault" ? "vault" : "plus";
+  state.pendingCheckoutTier = tier;
+  state.pendingPurchasePlan = tier;
+
+  if (!state.authenticated || !state.profile) {
+    state.selectedPlan = "starter";
+    focusAuthMode("signup");
+    showToast("Create your email login first, then connect wallet to upgrade");
+    return;
+  }
+
+  prepareDappCheckout(tier);
 }
 
 function closePurchase() {
@@ -461,6 +476,9 @@ async function handleAuthSubmit(event) {
       setCurrentAccount(address);
       sessionStorage.setItem(sessionKey, address);
       clearAuthSecrets();
+      if (await continuePendingUpgradeAfterAuth()) {
+        return;
+      }
       showToast(`${planLabel(state.accounts[address].plan)} mailbox opened`);
       render();
       return;
@@ -488,6 +506,9 @@ async function handleAuthSubmit(event) {
     setCurrentAccount(address);
     sessionStorage.setItem(sessionKey, address);
     clearAuthSecrets();
+    if (await continuePendingUpgradeAfterAuth()) {
+      return;
+    }
     showToast(`${address} created`);
     render();
     return;
@@ -515,6 +536,9 @@ async function handleAuthSubmit(event) {
     setCurrentAccount(address);
     sessionStorage.setItem(sessionKey, address);
     clearAuthSecrets();
+    if (await continuePendingUpgradeAfterAuth()) {
+      return;
+    }
     showToast("New mailbox created");
     render();
     return;
@@ -528,8 +552,22 @@ async function handleAuthSubmit(event) {
   setCurrentAccount(address);
   sessionStorage.setItem(sessionKey, address);
   clearAuthSecrets();
+  if (await continuePendingUpgradeAfterAuth()) {
+    return;
+  }
   showToast("Mailbox unlocked");
   render();
+}
+
+async function continuePendingUpgradeAfterAuth() {
+  const plan = state.pendingCheckoutTier;
+  if (!plan || plan === "starter") {
+    return false;
+  }
+
+  showToast("Account ready. Connect wallet to upgrade.");
+  await prepareDappCheckout(plan);
+  return true;
 }
 
 async function handleComposeSubmit(event) {
@@ -1055,7 +1093,11 @@ async function connectWallet() {
 
   try {
     await ensureDappConfig();
-    const provider = await walletProviderFor(els.walletProviderSelect.value);
+    let provider = await walletProviderFor(els.walletProviderSelect.value);
+    if (!provider && els.walletProviderSelect.value !== "walletconnect" && state.dappConfig?.walletConnectConfigured) {
+      els.walletProviderSelect.value = "walletconnect";
+      provider = await walletProviderFor("walletconnect");
+    }
     if (!provider) {
       showToast("Selected wallet was not found");
       return;
@@ -1079,11 +1121,23 @@ async function connectWallet() {
     localStorage.setItem(walletLinkKey(state.profile.address), wallet);
     persistCurrentProfile();
     render();
+    if (state.pendingCheckoutTier) {
+      setDappStatus("Wallet connected. Checkout is ready.", "Ready");
+      els.dappCheckoutBox?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
     showToast(`Wallet connected: ${shortWallet(wallet)}`);
   } catch (error) {
     setDappStatus(error.message || "Wallet connection failed", "Error");
     showToast("Wallet connection failed");
   }
+}
+
+function scrollToWalletConnect() {
+  const walletBox = document.querySelector(".wallet-upgrade-box");
+  walletBox?.scrollIntoView({ behavior: "smooth", block: "center" });
+  els.connectWalletButton?.focus({ preventScroll: true });
+  document.body.classList.add("wallet-attention");
+  window.setTimeout(() => document.body.classList.remove("wallet-attention"), 2200);
 }
 
 async function verifyMembership(plan) {
@@ -1282,6 +1336,7 @@ async function prepareDappCheckout(plan) {
     if (!state.profile.walletAddress) {
       setDappStatus("Connect a wallet before sending USDC.", "Wallet");
       showToast("Connect wallet first");
+      scrollToWalletConnect();
       return;
     }
 

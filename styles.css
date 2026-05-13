@@ -1023,6 +1023,15 @@ body.vault-prestige .plan-dashboard {
   padding: 16px;
 }
 
+.wallet-attention .wallet-upgrade-box {
+  border-color: rgba(61, 245, 141, 0.82);
+  box-shadow: 0 0 0 1px rgba(61, 245, 141, 0.34), 0 26px 100px rgba(61, 245, 141, 0.18);
+}
+
+.wallet-attention #connectWalletButton {
+  box-shadow: 0 0 0 3px rgba(61, 245, 141, 0.24);
+}
+
 .wallet-flow-copy h3,
 .tip-box h3 {
   margin: 0;
