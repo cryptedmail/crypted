@@ -47,11 +47,15 @@ alter table public.subscriptions enable row level security;
 alter table public.processed_transactions enable row level security;
 alter table public.pending_payments enable row level security;
 
-create policy if not exists "Users can read their profile"
+drop policy if exists "Users can read their profile" on public.profiles;
+
+create policy "Users can read their profile"
   on public.profiles for select
   using (auth.jwt() ->> 'email' = email);
 
-create policy if not exists "Users can read their subscription"
+drop policy if exists "Users can read their subscription" on public.subscriptions;
+
+create policy "Users can read their subscription"
   on public.subscriptions for select
   using (auth.jwt() ->> 'email' = email);
 
