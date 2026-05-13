@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cryptedmail</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="is-logged-out">
+    <div class="app-shell">
+      <header class="site-header">
+        <a class="brand" id="refreshBrand" href="index.html" aria-label="Open cryptedmail mailbox home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="crypted-logo" viewBox="0 0 128 128" focusable="false" shape-rendering="geometricPrecision">
+              <path class="logo-envelope" d="M17 75h94v34c0 5-4 9-9 9H26c-5 0-9-4-9-9V75Z"></path>
+              <path class="logo-envelope-fold" d="M18 77 64 104l46-27M18 116l32-28M110 116 78 88"></path>
+              <path class="logo-owl-shadow" d="M34 76c5 17 16 27 30 27s25-10 30-27"></path>
+              <path class="logo-owl-body" d="M30 52c0-27 15-42 34-42s34 15 34 42v13c0 25-14 40-34 40S30 90 30 65V52Z"></path>
+              <path class="logo-owl-ears" d="M41 31 33 12l23 13M87 31l8-19-23 13"></path>
+              <path class="logo-face-left" d="M42 42c0-10 8-18 18-18 4 0 7 1 10 4-3 19-12 31-27 36-4-7-6-14-1-22Z"></path>
+              <path class="logo-face-right" d="M86 42c0-10-8-18-18-18-4 0-7 1-10 4 3 19 12 31 27 36 4-7 6-14 1-22Z"></path>
+              <circle class="logo-eye" cx="52" cy="44" r="7"></circle>
+              <circle class="logo-eye" cx="76" cy="44" r="7"></circle>
+              <circle class="logo-pupil" cx="52" cy="44" r="3"></circle>
+              <circle class="logo-pupil" cx="76" cy="44" r="3"></circle>
+              <path class="logo-mouth" d="M64 57 55 68h18L64 57Z"></path>
+              <path class="logo-mouth-line" d="M58 68c4 4 8 4 12 0"></path>
+              <path class="logo-wing-left" d="M36 60c4 14 10 24 18 32"></path>
+              <path class="logo-wing-right" d="M92 60c-4 14-10 24-18 32"></path>
+              <path class="logo-feet" d="M52 101l-8 8M64 103v10M76 101l8 8"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>cryptedmail</strong>
+            <small>disposable encrypted email</small>
+          </span>
+        </a>
+
+        <nav class="header-actions" aria-label="Account">
+          <button class="ghost-button" id="homeLoginButton" type="button">Login</button>
+          <button class="primary-button" id="homeSignupButton" type="button">Sign up</button>
+        </nav>
+      </header>
+
+      <main>
+        <section class="home-view" id="homeView">
+          <div class="hero-copy">
+            <p class="eyebrow">Disposable email with receipts you control</p>
+            <h1>cryptedmail</h1>
+            <p class="hero-text">Create clean @cryptedmail.com addresses for every part of your life, keep them in one familiar mailbox, and burn any address the moment it starts leaking, tracking, or collecting spam. cryptedmail keeps message content off-chain and uses blockchain-backed receipts for ownership, plan access, public keys, and deactivation proof.</p>
+
+            <div class="hero-actions">
+              <button class="primary-button" id="heroSignupButton" type="button">Get secure mail</button>
+              <button class="ghost-button" id="heroLoginButton" type="button">Open mailbox</button>
+            </div>
+
+            <div class="chain-strip">
+              <strong>Blockchain layer</strong>
+              <span>Account ownership, plan access, public keys, and deactivate receipts are verifiable. Email content stays private and off-chain.</span>
+            </div>
+
+            <div class="plans-grid" id="plansGrid" aria-label="cryptedmail subscription plans">
+              <article class="plan-card" data-plan="starter">
+                <span>Starter</span>
+                <strong>Free</strong>
+                <small>$0 / month</small>
+                <p>1 disposable address, blockchain-backed ownership, instant deactivate, receiver-only encryption, encrypted reader, and a clean inbox.</p>
+                <button class="primary-button plan-signup" type="button" data-plan="starter">Get secure mail</button>
+              </article>
+              <article class="plan-card is-featured" data-plan="plus">
+                <span>Secure Plus</span>
+                <strong>$4.99</strong>
+                <small>/ month</small>
+                <p>10 disposable addresses, one-click shutdown, alias rotation, tracker blocking, larger encrypted storage, and on-chain plan access.</p>
+                <div class="plan-actions">
+                  <button class="primary-button plan-purchase" type="button" data-plan="plus">Purchase Secure Plus</button>
+                  <button class="ghost-button compact plan-trial" type="button" data-plan="plus">Try Plus</button>
+                </div>
+              </article>
+              <article class="plan-card" data-plan="vault">
+                <span>Vault</span>
+                <strong>$9.99</strong>
+                <small>/ month</small>
+                <p>Unlimited disposable mailboxes, color-coded identities, mailbox style controls, team/family vaults, secure import, and chain-backed admin receipts.</p>
+                <div class="plan-actions">
+                  <button class="primary-button plan-purchase" type="button" data-plan="vault">Purchase Vault</button>
+                  <button class="ghost-button compact plan-trial" type="button" data-plan="vault">Try Vault</button>
+                </div>
+              </article>
+            </div>
+
+            <section class="plan-detail-pages" aria-label="Paid plan demos">
+              <article class="plan-detail-page" id="securePlusPage" data-plan="plus">
+                <div class="detail-copy">
+                  <p class="eyebrow">Secure Plus dashboard</p>
+                  <h2>Ten disposable addresses, one clean mailbox.</h2>
+                  <p>Secure Plus is for people who want normal email with faster escape routes: create separate @cryptedmail.com addresses for shopping, signups, work, or unknown senders, rotate them, then deactivate the risky one without touching your main mailbox.</p>
+                  <ul class="perk-list">
+                    <li>10 active disposable @cryptedmail.com addresses</li>
+                    <li>Alias rotation for signups and risky websites</li>
+                    <li>Tracker blocking and safer remote image handling</li>
+                    <li>Larger encrypted mailbox storage</li>
+                    <li>Blockchain-backed plan access receipt</li>
+                  </ul>
+                </div>
+                <div class="plan-demo-console" aria-label="Secure Plus address pool">
+                  <div class="console-head">
+                    <strong>Address pool</strong>
+                    <span>7 / 10 active</span>
+                  </div>
+                  <div class="demo-addresses">
+                    <span>shop-mask@cryptedmail.com</span>
+                    <span>work-relay@cryptedmail.com</span>
+                    <span>travel-vault@cryptedmail.com</span>
+                    <span>signup-zero@cryptedmail.com</span>
+                  </div>
+                  <div class="demo-metric-row">
+                    <strong>Trackers blocked</strong>
+                    <span>238</span>
+                  </div>
+                  <div class="demo-metric-row">
+                    <strong>Deactivation speed</strong>
+                    <span>Instant</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="plan-detail-page vault-detail" id="vaultPage" data-plan="vault">
+                <div class="detail-copy">
+                  <p class="eyebrow">Vault command center</p>
+                  <h2>Unlimited disposable mailboxes for serious privacy.</h2>
+                  <p>Vault turns cryptedmail into a full disposable-email control room for teams, families, creators, and high-volume users. Keep every identity separated, import older mail, and shut down any exposed mailbox with no questions.</p>
+                  <ul class="perk-list">
+                    <li>Unlimited disposable @cryptedmail.com mailboxes</li>
+                    <li>Shared family or team vault spaces</li>
+                    <li>Multi-address routing and secure import</li>
+                    <li>Admin color controls for every identity</li>
+                    <li>Vault-only mailbox style switching</li>
+                    <li>VIP marking, lockdown notes, and burn prep</li>
+                    <li>Blockchain-backed ownership, payments, and plan receipts</li>
+                  </ul>
+                </div>
+                <div class="plan-demo-console" aria-label="Vault mailbox controls">
+                  <div class="console-head">
+                    <strong>Vault spaces</strong>
+                    <span>Unlimited</span>
+                  </div>
+                  <div class="vault-lanes">
+                    <span>Personal <strong>12 addresses</strong></span>
+                    <span>Business <strong>31 addresses</strong></span>
+                    <span>Family <strong>8 addresses</strong></span>
+                  </div>
+                  <div class="demo-metric-row">
+                    <strong>Chain receipt</strong>
+                    <span>Verified</span>
+                  </div>
+                  <div class="demo-metric-row">
+                    <strong>Bulk deactivate</strong>
+                    <span>Ready</span>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <aside class="auth-card" aria-labelledby="authTitle">
+            <div class="auth-tabs" aria-label="Account mode">
+              <button class="tab-button is-active" id="signupTab" type="button" data-auth-mode="signup">Sign up</button>
+              <button class="tab-button" id="loginTab" type="button" data-auth-mode="login">Login</button>
+            </div>
+
+            <div class="auth-heading">
+              <p class="eyebrow" id="authEyebrow">No invite needed</p>
+              <h2 id="authTitle">Claim a disposable secure inbox.</h2>
+            </div>
+
+            <form class="auth-form" id="authForm" action="javascript:void(0)" novalidate>
+              <label for="addressInput">Email address</label>
+              <div class="address-builder">
+                <input id="addressInput" name="address" type="text" autocomplete="username" placeholder="desired name or random" maxlength="32">
+                <span>@cryptedmail.com</span>
+                <button class="icon-button" id="randomAddressButton" type="button" title="Generate random address" aria-label="Generate random address">?</button>
+              </div>
+
+              <label for="passphraseInput">Password</label>
+              <input id="passphraseInput" name="passphrase" type="password" autocomplete="current-password" placeholder="minimum 4 characters" minlength="4">
+
+              <button class="primary-button" id="authSubmit" type="button">Create account</button>
+            </form>
+
+            <div class="signup-reasons">
+              <strong>Why people switch</strong>
+              <span>Disposable by design: blockchain-backed ownership, fast inbox creation, normal email feel, optional encryption, and no-questions deactivation.</span>
+            </div>
+            <p class="auth-note">Demo mode keeps this mailbox in your browser so the flow is safe to test.</p>
+          </aside>
+        </section>
+
+        <section class="dashboard-view" id="dashboardView" aria-label="cryptedmail mailbox">
+          <header class="mail-header">
+            <div class="mail-header-title">
+              <p class="eyebrow">cryptedmail</p>
+              <h2 id="mailboxTitle">Inbox</h2>
+            </div>
+            <label class="mail-search" for="mailSearch">
+              <span>Search</span>
+              <input id="mailSearch" type="text" placeholder="Search mail">
+            </label>
+            <div class="account-strip">
+              <span id="activeAddress">locked@cryptedmail.com</span>
+              <select class="active-address-select" id="activeAddressSelect" aria-label="Active sending address"></select>
+              <button class="primary-button upgrade-button" id="upgradeButton" type="button">Upgrade</button>
+              <button class="ghost-button" id="signOutButton" type="button">Sign out</button>
+              <button class="deactivate-button" id="deactivateButton" type="button">Deactivate</button>
+            </div>
+          </header>
+
+          <section class="upgrade-view" id="upgradeView" aria-label="Upgrade cryptedmail">
+            <div class="upgrade-hero">
+              <div>
+                <p class="eyebrow">Upgrade mailbox</p>
+                <h2>Keep your address. Unlock the paid powers.</h2>
+                <p>Secure Plus and Vault attach to the mailbox you already opened. Pick a plan, link the current @cryptedmail.com address, add a wallet or card note, then jump straight into the upgraded inbox.</p>
+              </div>
+              <button class="ghost-button" id="backToMailboxButton" type="button">Back to mailbox</button>
+            </div>
+
+            <div class="upgrade-account-box">
+              <span>Linked address</span>
+              <strong id="upgradeAccountAddress">locked@cryptedmail.com</strong>
+              <p>No new email is created during upgrade. Checkout verifies the plan against this mailbox and keeps all existing aliases.</p>
+            </div>
+
+            <section class="wallet-upgrade-box" aria-label="Wallet upgrade flow">
+              <div class="wallet-flow-copy">
+                <p class="eyebrow">Hybrid setup</p>
+                <h3>Email login first. Wallet only when needed.</h3>
+                <p>Regular users can stay with email and password. Blockchain features turn on only after connecting a wallet, paying with crypto, or verifying a membership NFT/token.</p>
+              </div>
+
+              <div class="wallet-steps">
+                <div class="wallet-step">
+                  <span>1</span>
+                  <strong>Email account</strong>
+                  <small id="walletEmailStatus">Signed in with cryptedmail.</small>
+                </div>
+                <div class="wallet-step">
+                  <span>2</span>
+                  <strong>Connect wallet</strong>
+                  <small id="walletStatus">No wallet connected.</small>
+                </div>
+                <div class="wallet-step">
+                  <span>3</span>
+                  <strong>Pay or verify</strong>
+                  <small id="upgradeUnlockStatus">Premium unlock waits for payment or token proof.</small>
+                </div>
+              </div>
+
+              <div class="wallet-connect-row">
+                <label for="walletProviderSelect">Wallet provider</label>
+                <select id="walletProviderSelect">
+                  <option value="metamask">MetaMask</option>
+                  <option value="coinbase">Coinbase Wallet</option>
+                  <option value="walletconnect">WalletConnect</option>
+                </select>
+
+                <label for="walletAddressInput">Connected wallet</label>
+                <div class="wallet-input-row">
+                  <input id="walletAddressInput" type="text" placeholder="Connect wallet to fill address" autocomplete="off" readonly>
+                  <button class="primary-button compact" id="connectWalletButton" type="button">Connect Wallet</button>
+                </div>
+                <small class="wallet-safety-note">cryptedmail never asks for or stores seed phrases, recovery phrases, or private keys.</small>
+              </div>
+
+              <div class="wallet-action-row">
+                <button class="ghost-button compact membership-verify" type="button" data-plan="plus">Verify Plus token</button>
+                <button class="ghost-button compact membership-verify" type="button" data-plan="vault">Verify Vault NFT</button>
+              </div>
+            </section>
+
+            <section class="dapp-checkout-box" id="dappCheckoutBox" aria-label="USDC blockchain checkout">
+              <div class="panel-title tight">
+                <div>
+                  <h3>USDC checkout</h3>
+                  <span>Premium unlocks only after backend on-chain verification.</span>
+                </div>
+                <span class="status-chip" id="dappCheckoutBadge">Safe</span>
+              </div>
+
+              <div class="checkout-grid">
+                <span>Subscription</span>
+                <strong id="dappCheckoutPlan">Choose a plan</strong>
+                <span>Price</span>
+                <strong id="dappCheckoutPrice">-</strong>
+                <span>Network</span>
+                <strong id="dappCheckoutNetwork">Base or Polygon</strong>
+                <span>Wallet</span>
+                <strong id="dappCheckoutWallet">Not connected</strong>
+                <span>Transaction</span>
+                <strong id="dappTxStatus">Waiting for checkout</strong>
+              </div>
+
+              <div class="dialog-actions">
+                <button class="primary-button" id="dappSendPaymentButton" type="button" disabled>Send USDC payment</button>
+                <a class="ghost-button compact explorer-link" id="dappExplorerLink" href="#" target="_blank" rel="noreferrer" hidden>Open explorer</a>
+              </div>
+            </section>
+
+            <div class="upgrade-plans" aria-label="Upgrade plan options">
+              <article class="upgrade-plan-card" data-plan="plus">
+                <span>Secure Plus</span>
+                <strong>$4.99</strong>
+                <small>/ month</small>
+                <p>For people who want more disposable addresses without changing how email feels.</p>
+                <ul>
+                  <li>10 active @cryptedmail.com addresses</li>
+                  <li>Unified or separated inbox views</li>
+                  <li>One-click address burn controls</li>
+                  <li>Tracker-aware paid mailbox mode</li>
+                  <li>Blockchain plan receipt linked to this address</li>
+                </ul>
+                <div class="plan-actions">
+                  <button class="primary-button crypto-pay" type="button" data-plan="plus">Pay crypto</button>
+                  <button class="ghost-button compact card-pay" type="button" data-plan="plus">Pay card</button>
+                  <button class="ghost-button compact plan-trial" type="button" data-plan="plus">Demo Plus</button>
+                </div>
+              </article>
+
+              <article class="upgrade-plan-card vault-upgrade-card" data-plan="vault">
+                <span>Vault</span>
+                <strong>$9.99</strong>
+                <small>/ month</small>
+                <p>The paid admin layer: unlimited aliases, color-coded identities, mailbox skins, and extra control tools.</p>
+                <ul>
+                  <li>Unlimited disposable addresses</li>
+                  <li>Vault admin box on the mailbox home</li>
+                  <li>Color-code every address for organization</li>
+                  <li>Change the whole Vault mailbox style</li>
+                  <li>VIP marking, lockdown notes, and bulk burn prep</li>
+                  <li>Blockchain receipts for plan and admin actions</li>
+                </ul>
+                <div class="plan-actions">
+                  <button class="primary-button crypto-pay" type="button" data-plan="vault">Pay crypto</button>
+                  <button class="ghost-button compact card-pay" type="button" data-plan="vault">Pay card</button>
+                  <button class="ghost-button compact plan-trial" type="button" data-plan="vault">Demo Vault</button>
+                </div>
+              </article>
+            </div>
+
+            <section class="tip-box" aria-label="Crypto tipping">
+              <div>
+                <p class="eyebrow">Crypto tipping</p>
+                <h3>Tip the cryptedmail vault.</h3>
+                <p>Optional tips can support development, creators, or community relays without changing the account plan.</p>
+              </div>
+              <div class="tip-controls">
+                <input id="tipAmountInput" type="number" min="0" step="0.01" placeholder="0.05">
+                <select id="tipAssetSelect" aria-label="Tip asset">
+                  <option value="ETH">ETH</option>
+                  <option value="SOL">SOL</option>
+                  <option value="USDC">USDC</option>
+                </select>
+                <button class="primary-button compact" id="sendTipButton" type="button">Send tip</button>
+              </div>
+              <strong id="tipStatus">Tips are optional.</strong>
+            </section>
+          </section>
+
+          <section class="plan-dashboard" id="planDashboard" aria-label="Plan dashboard">
+            <div>
+              <p class="eyebrow" id="planDashboardEyebrow">Starter mailbox</p>
+              <h3 id="planDashboardTitle">One clean disposable inbox.</h3>
+              <p id="planDashboardText">Starter keeps the mailbox simple. Upgrade paths unlock multiple addresses, safer routing, and Vault admin controls.</p>
+            </div>
+            <div class="plan-dashboard-metrics" id="planDashboardMetrics"></div>
+          </section>
+
+          <div class="mail-grid">
+            <aside class="mail-rail" aria-label="Mail navigation">
+              <button class="primary-button compose-shortcut" id="focusComposeButton" type="button">Compose</button>
+              <div class="rail-group" aria-label="Mailbox navigation">
+                <span class="rail-label">Mail</span>
+                <div class="folder-row" aria-label="Folders">
+                  <button class="folder-button is-active" type="button" data-folder="inbox">Inbox</button>
+                  <button class="folder-button" type="button" data-folder="sent">Sent</button>
+                </div>
+              </div>
+              <div class="rail-group address-filter-panel" aria-label="Address inbox views">
+                <span class="rail-label">Address view</span>
+                <div class="address-filter-list" id="addressFilterList"></div>
+              </div>
+              <div class="rail-note">
+                <strong>cryptedmail.com</strong>
+                <span>View every address together or split mail by alias, then burn the exposed address when you are done.</span>
+              </div>
+
+              <section class="plan-tools" id="planTools" aria-labelledby="planToolsTitle">
+                <div class="panel-title tight">
+                  <h3 id="planToolsTitle">Addresses</h3>
+                  <span class="status-chip" id="planBadge">Starter</span>
+                </div>
+                <p id="planToolsSummary">Type the first part only. cryptedmail finishes the address for you.</p>
+                <div class="address-manager">
+                  <label for="aliasHandleInput">New disposable address</label>
+                  <div class="alias-builder">
+                    <input id="aliasHandleInput" type="text" placeholder="shopping-name" maxlength="32" autocomplete="off">
+                    <span>@cryptedmail.com</span>
+                    <button class="primary-button compact" id="generatePlanAddress" type="button">Add</button>
+                  </div>
+                  <details class="manage-addresses">
+                    <summary>Manage addresses</summary>
+                    <div class="plan-address-list" id="planAddressList" aria-label="Plan addresses"></div>
+                  </details>
+                </div>
+                <div class="paid-perk-grid" id="paidPerkGrid" aria-label="Paid plan perks"></div>
+              </section>
+            </aside>
+
+            <section class="mailbox-panel mail-list-panel" aria-labelledby="mailboxPanelTitle">
+              <div class="panel-title">
+                <h3 id="mailboxPanelTitle">Inbox</h3>
+                <span class="mail-count" id="mailCount">0 messages</span>
+              </div>
+              <div class="message-list" id="messageList" aria-label="Messages"></div>
+            </section>
+
+            <div class="right-mail-column">
+              <section class="compose-panel" id="composePanel" aria-labelledby="composeTitle">
+                <div class="panel-title">
+                  <div>
+                    <h3 id="composeTitle">New message</h3>
+                    <span>Choose the sending address, then send like normal.</span>
+                  </div>
+                </div>
+
+                <form class="compose-form" id="composeForm">
+                  <label for="fromSelect">From</label>
+                  <select id="fromSelect" aria-label="Send from address"></select>
+                  <input id="fromInput" type="hidden" readonly>
+
+                  <label for="toInput">To</label>
+                  <input id="toInput" type="text" inputmode="email" autocomplete="email" placeholder="friend@gmail.com">
+
+                  <label for="subjectInput">Subject</label>
+                  <input id="subjectInput" type="text" placeholder="Subject">
+
+                  <label for="descriptionInput">Description</label>
+                  <input id="descriptionInput" type="text" placeholder="Short note for this email">
+
+                  <label for="bodyInput">Message</label>
+                  <textarea id="bodyInput" rows="8" placeholder="Type your email here"></textarea>
+
+                  <label class="encrypt-toggle" for="encryptToggle">
+                    <input id="encryptToggle" type="checkbox" checked>
+                    <span>
+                      <strong>Encrypt this message</strong>
+                      <small>Only the sender and the recipient cryptedmail account can open the encrypted copy.</small>
+                    </span>
+                  </label>
+
+                  <button class="primary-button send-button" type="submit">Send</button>
+                </form>
+
+                <section class="vault-tools vault-admin-panel" id="vaultTools" aria-labelledby="vaultAdminTitle" hidden>
+                  <div class="panel-title tight">
+                    <div>
+                      <h3 id="vaultAdminTitle">Vault admin lobby</h3>
+                      <span>Linux/modded-lobby style powers for the selected address.</span>
+                    </div>
+                    <span class="status-chip">Vault</span>
+                  </div>
+
+                  <div class="admin-control-grid">
+                    <label for="vaultThemeSelect">Mailbox style</label>
+                    <select id="vaultThemeSelect">
+                      <option value="linux">Linux lobby</option>
+                      <option value="royal">Royal purple</option>
+                      <option value="neon">Neon terminal</option>
+                      <option value="ember">Red alert</option>
+                      <option value="ice">Ice vault</option>
+                    </select>
+
+                    <label for="addressColorInput">Selected email color</label>
+                    <div class="color-control">
+                      <input id="addressColorInput" type="color" value="#3df58d">
+                      <span>Pick an address from the top dropdown, then color-code it here.</span>
+                    </div>
+                  </div>
+
+                  <div class="admin-action-grid">
+                    <button class="ghost-button compact" id="vaultVipButton" type="button">Mark VIP</button>
+                    <button class="ghost-button compact" id="vaultGlowButton" type="button">Boost glow</button>
+                    <button class="ghost-button compact" id="vaultLockdownButton" type="button">Lockdown note</button>
+                    <button class="ghost-button compact" id="vaultLinuxButton" type="button">Linux lobby</button>
+                    <button class="ghost-button compact" id="vaultPrestigeButton" type="button">Prestige tag</button>
+                    <button class="ghost-button compact" id="vaultGhostButton" type="button">Ghost route</button>
+                    <button class="ghost-button compact" id="vaultQueueButton" type="button">Burn queue</button>
+                    <button class="ghost-button compact" id="vaultXpButton" type="button">XP boost</button>
+                  </div>
+
+                  <div class="admin-status" id="vaultAdminStatus">
+                    <strong>Admin ready.</strong>
+                    <p>Vault controls apply to the current mailbox only.</p>
+                  </div>
+                </section>
+
+                <div class="encrypted-box">
+                  <div class="panel-title tight">
+                    <h3>Encrypted copy</h3>
+                    <button class="ghost-button compact" id="copyEncryptedButton" type="button">Copy</button>
+                  </div>
+                  <textarea id="encryptedOutput" rows="7" readonly placeholder="Your encrypted cryptedmail block will appear here after sending."></textarea>
+                </div>
+              </section>
+
+              <section class="reader-panel" aria-labelledby="readerTitle">
+                <div class="panel-title tight">
+                  <h3 id="readerTitle">Encrypted reader</h3>
+                  <span class="status-chip">Paste</span>
+                </div>
+                <textarea id="readerPaste" rows="7" placeholder="Paste a CRYPTEDMAIL encrypted message block here"></textarea>
+                <button class="primary-button compact full-button" id="readEncryptedButton" type="button">Read message</button>
+                <div class="reader-output" id="readerOutput" aria-live="polite">
+                  <strong>No encrypted message opened yet.</strong>
+                  <p>Paste the full encrypted block from another cryptedmail user, then read it here.</p>
+                </div>
+              </section>
+
+              <aside class="message-preview" aria-labelledby="previewTitle">
+                <div class="panel-title tight">
+                  <h3 id="previewTitle">Opened email</h3>
+                  <span id="messageStatus" class="status-chip">Ready</span>
+                </div>
+                <article id="messagePreview" class="preview-card">
+                  <strong>Welcome to cryptedmail.</strong>
+                  <p>Sign in, send an email, copy the encrypted block, and paste it into the reader.</p>
+                </article>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <dialog class="purchase-dialog" id="purchaseDialog">
+        <form method="dialog">
+          <p class="eyebrow" id="purchaseEyebrow">Blockchain-backed plan</p>
+          <h2 id="purchaseTitle">Secure Plus</h2>
+          <p id="purchaseSummary">Upgrade your disposable encrypted mailbox.</p>
+
+          <div class="purchase-price">
+            <strong id="purchasePrice">$4.99</strong>
+            <span id="purchaseCycle">per month</span>
+          </div>
+
+          <ul class="purchase-perks" id="purchasePerks"></ul>
+
+          <div class="checkout-box">
+            <label for="checkoutEmail">Account</label>
+            <input id="checkoutEmail" type="text" value="new@cryptedmail.com">
+
+            <label for="checkoutWallet">Wallet, card, or token proof</label>
+            <input id="checkoutWallet" type="text" placeholder="0x wallet, card ending, or NFT/token id">
+
+            <small>Demo checkout: email/password owns the account. Wallet, card, or NFT/token proof unlocks premium status on that same login.</small>
+          </div>
+
+          <div class="dialog-actions">
+            <button class="ghost-button" id="closePurchase" value="cancel" type="button">Close</button>
+            <button class="ghost-button" id="tryPurchasePlan" value="try" type="button">Try without payment</button>
+            <button class="primary-button" id="completePurchase" value="purchase" type="button">Complete purchase</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog class="confirm-dialog" id="confirmDialog">
+        <form method="dialog">
+          <p class="eyebrow">Deactivate account</p>
+          <h2>Are you sure?</h2>
+          <p>No questions. This removes the local cryptedmail account, mailbox, and encrypted drafts from this browser.</p>
+          <div class="dialog-actions">
+            <button class="ghost-button" id="cancelDeactivate" value="cancel" type="button">No, keep it</button>
+            <button class="deactivate-button" id="confirmDeactivate" value="confirm" type="button">Yes, deactivate</button>
+          </div>
+        </form>
+      </dialog>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script>
+      (function () {
+        function ready(callback) {
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", callback);
+          } else {
+            callback();
+          }
+        }
+
+        function byId(id) {
+          return document.getElementById(id);
+        }
+
+        var fallbackPlan = "plus";
+
+        function fallbackPlanName(plan) {
+          return plan === "vault" ? "vault" : "plus";
+        }
+
+        function fallbackAddress(value, plan) {
+          var raw = String(value || "").toLowerCase().replace("@cryptedmail.com", "");
+          if (raw.indexOf("@") > -1) {
+            raw = raw.split("@")[0];
+          }
+          var handle = raw.replace(/[^a-z0-9._-]/g, "-").replace(/^-+|-+$/g, "") || plan + "-demo-" + Math.floor(100 + Math.random() * 900);
+          return handle + "@cryptedmail.com";
+        }
+
+        function handle() {
+          var input = byId("addressInput");
+          var raw = input && input.value ? input.value : "demo";
+          return raw.toLowerCase().replace("@cryptedmail.com", "").replace(/[^a-z0-9._-]/g, "-").replace(/^-+|-+$/g, "") || "demo";
+        }
+
+        function openAuth(mode) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          document.body.classList.toggle("is-login-mode", mode === "login");
+          byId("signupTab")?.classList.toggle("is-active", mode !== "login");
+          byId("loginTab")?.classList.toggle("is-active", mode === "login");
+          byId("authSubmit").textContent = mode === "login" ? "Login" : "Create account";
+          byId("authTitle").textContent = mode === "login" ? "Login to open the mailbox." : "Claim a disposable secure inbox.";
+          document.querySelector(".auth-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+          byId("addressInput")?.focus();
+        }
+
+        function openMailbox(event) {
+          if (event) {
+            event.preventDefault();
+          }
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          var address = handle() + "@cryptedmail.com";
+          document.body.classList.remove("show-upgrade");
+          document.body.classList.add("is-authenticated");
+          document.body.classList.remove("is-logged-out");
+          byId("activeAddress").textContent = address;
+          if (byId("activeAddressSelect")) {
+            byId("activeAddressSelect").innerHTML = '<option value="' + address + '">' + address + '</option>';
+          }
+          byId("fromInput").value = address;
+          if (byId("fromSelect")) {
+            byId("fromSelect").innerHTML = '<option value="' + address + '">' + address + ' (primary)</option>';
+          }
+          byId("mailboxTitle").textContent = "Inbox";
+          byId("mailboxPanelTitle").textContent = "Inbox";
+          byId("mailCount").textContent = "1 message";
+          byId("messageList").innerHTML = '<button class="message-card is-selected" type="button"><strong>Welcome to cryptedmail</strong><span>From system@cryptedmail.com</span><span>Disposable inbox ready. Deactivate anytime, no questions.</span></button>';
+          byId("messagePreview").innerHTML = '<strong>Welcome to cryptedmail.</strong><p>Your Gmail-like disposable inbox is open. Send normal mail, turn on encryption when needed, and deactivate instantly.</p>';
+          document.querySelector(".dashboard-view")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function openPaidMailboxFallback(plan) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          fallbackPlan = fallbackPlanName(typeof plan === "string" ? plan : fallbackPlan);
+          var checkoutOpen = byId("purchaseDialog")?.open;
+          byId("purchaseDialog")?.close();
+          var address = checkoutOpen ? fallbackAddress(byId("checkoutEmail")?.value, fallbackPlan) : fallbackAddress("", fallbackPlan);
+          document.body.classList.remove("show-upgrade");
+          document.body.classList.add("is-authenticated", "plan-" + fallbackPlan);
+          document.body.classList.remove("is-logged-out", "plan-starter", fallbackPlan === "plus" ? "plan-vault" : "plan-plus");
+          byId("activeAddress").textContent = address;
+          if (byId("activeAddressSelect")) {
+            byId("activeAddressSelect").innerHTML = '<option value="' + address + '">' + address + '</option>';
+          }
+          if (byId("fromSelect")) {
+            byId("fromSelect").innerHTML = '<option value="' + address + '">' + address + ' (primary)</option>';
+          }
+          byId("fromInput").value = address;
+          byId("mailboxTitle").textContent = "Inbox";
+          byId("mailboxPanelTitle").textContent = "Inbox";
+          byId("mailCount").textContent = "1 message";
+          byId("planBadge").textContent = fallbackPlan === "vault" ? "Vault" : "Secure Plus";
+          byId("planDashboardEyebrow").textContent = fallbackPlan === "vault" ? "Vault News" : "Secure Plus News";
+          byId("planDashboardTitle").textContent = fallbackPlan === "vault" ? "Admin lobby updates." : "Paid address updates.";
+          byId("planDashboardText").textContent = fallbackPlan === "vault" ? "Vault adds Linux/modded-lobby style controls for the paid power layer." : "Secure Plus keeps multiple disposable addresses simple and clean.";
+          if (byId("vaultTools")) {
+            byId("vaultTools").hidden = fallbackPlan !== "vault";
+          }
+          if (fallbackPlan === "vault") {
+            byId("vaultAdminStatus").innerHTML = "<strong>Vault admin ready.</strong><p>Use the style and color controls on the right.</p>";
+          }
+          byId("messageList").innerHTML = '<button class="message-card is-selected" type="button"><strong>' + (fallbackPlan === "vault" ? "Vault" : "Secure Plus") + ' mailbox ready</strong><span>From system@cryptedmail.com</span><span>Paid plan opened. Add addresses from the left panel.</span></button>';
+          byId("messagePreview").innerHTML = '<strong>Paid mailbox ready.</strong><p>Add a disposable address, pick it from the dropdown, and compose.</p>';
+          document.querySelector(".dashboard-view")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function openUpgradeFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          if (!document.body.classList.contains("is-authenticated")) {
+            openMailbox();
+          }
+          var linked = byId("activeAddressSelect")?.value || byId("activeAddress")?.textContent || "demo@cryptedmail.com";
+          byId("upgradeAccountAddress").textContent = linked;
+          byId("walletEmailStatus").textContent = "Signed in as " + linked + ".";
+          document.body.classList.add("show-upgrade");
+          byId("upgradeView")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function closeUpgradeFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          document.body.classList.remove("show-upgrade");
+          byId("dashboardView")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function vaultAdminFallback(action) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          if (!document.body.classList.contains("plan-vault")) {
+            openPaidMailboxFallback("vault");
+          }
+          if (action === "theme") {
+            document.body.classList.remove("vault-theme-linux", "vault-theme-royal", "vault-theme-neon", "vault-theme-ember", "vault-theme-ice");
+            document.body.classList.add("vault-theme-" + (byId("vaultThemeSelect")?.value || "linux"));
+            byId("vaultAdminStatus").innerHTML = "<strong>Vault style applied.</strong><p>The mailbox theme changed for this Vault demo.</p>";
+          }
+          if (action === "linux") {
+            byId("vaultThemeSelect").value = "linux";
+            vaultAdminFallback("theme");
+            document.body.classList.add("vault-glow");
+            byId("vaultAdminStatus").innerHTML = "<strong>Linux lobby loaded.</strong><p>Green terminal mode is active.</p>";
+          }
+          if (action === "vip") {
+            byId("addressColorInput").value = "#ffd166";
+            byId("vaultAdminStatus").innerHTML = "<strong>VIP color applied.</strong><p>The selected address is marked gold.</p>";
+          }
+          if (action === "glow") {
+            document.body.classList.toggle("vault-glow");
+            byId("vaultAdminStatus").innerHTML = "<strong>Vault glow toggled.</strong><p>The paid mailbox glow changed.</p>";
+          }
+          if (action === "lockdown") {
+            byId("messagePreview").innerHTML = "<strong>Vault lockdown note.</strong><p>The selected address is marked for stricter routing and faster burn decisions.</p>";
+            byId("vaultAdminStatus").innerHTML = "<strong>Lockdown note saved.</strong><p>Admin note added to the current address.</p>";
+          }
+          if (action === "prestige") {
+            document.body.classList.toggle("vault-prestige");
+            byId("vaultAdminStatus").innerHTML = "<strong>Prestige tag toggled.</strong><p>The Vault admin panel has a paid purple edge.</p>";
+          }
+          if (action === "ghost") {
+            byId("addressColorInput").value = "#76d8ff";
+            byId("vaultAdminStatus").innerHTML = "<strong>Ghost route applied.</strong><p>The selected address is marked cyan.</p>";
+          }
+          if (action === "queue") {
+            byId("messagePreview").innerHTML = "<strong>Burn queue staged.</strong><p>This demo marks the selected address for quick cleanup decisions.</p>";
+            byId("vaultAdminStatus").innerHTML = "<strong>Burn queue staged.</strong><p>Nothing deletes until you press Burn.</p>";
+          }
+          if (action === "xp") {
+            document.body.classList.add("vault-glow");
+            byId("addressColorInput").value = "#3df58d";
+            byId("vaultAdminStatus").innerHTML = "<strong>XP boost active.</strong><p>Green glow and admin visual boost enabled.</p>";
+          }
+        }
+
+        function connectWalletFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          openUpgradeFallback();
+          var wallet = byId("walletAddressInput")?.value || "0xdemo" + Math.floor(100000 + Math.random() * 900000);
+          byId("walletAddressInput").value = wallet;
+          byId("walletStatus").textContent = "Connected: " + wallet;
+          byId("upgradeUnlockStatus").textContent = "Wallet connected. Choose crypto, card, or token verification.";
+        }
+
+        function payFallback(plan, method) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          fallbackPlan = fallbackPlanName(plan);
+          if (method === "crypto" && !byId("walletAddressInput")?.value) {
+            connectWalletFallback();
+          }
+          openPurchaseFallback(fallbackPlan);
+          byId("purchaseSummary").textContent = method === "crypto"
+            ? "Crypto payment demo: wallet proof unlocks this plan on the current email login."
+            : "Card payment demo: normal checkout stays available for users who do not use wallets.";
+          byId("checkoutWallet").value = method === "crypto" ? byId("walletAddressInput")?.value || "demo-wallet" : "card-demo";
+        }
+
+        function verifyMembershipFallback(plan) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          connectWalletFallback();
+          openPaidMailboxFallback(plan);
+          byId("upgradeUnlockStatus").textContent = (plan === "vault" ? "Vault NFT" : "Secure Plus token") + " verified. Premium unlocked.";
+        }
+
+        function sendTipFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          connectWalletFallback();
+          var amount = byId("tipAmountInput")?.value || "0.05";
+          var asset = byId("tipAssetSelect")?.value || "ETH";
+          byId("tipStatus").textContent = "Tip queued: " + amount + " " + asset;
+          byId("tipAmountInput").value = "";
+        }
+
+        function sendFallback(event) {
+          if (event) {
+            event.preventDefault();
+          }
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          var from = byId("fromSelect")?.value || byId("fromInput").value || "demo@cryptedmail.com";
+          var to = byId("toInput").value || "receiver@cryptedmail.com";
+          var subject = byId("subjectInput").value || "(no subject)";
+          var body = byId("bodyInput").value || "";
+          var mode = byId("encryptToggle").checked ? "ENCRYPTED" : "STANDARD";
+          var block = "-----BEGIN CRYPTEDMAIL " + mode + " MESSAGE-----\n" + btoa(JSON.stringify({ from: from, to: to, subject: subject, body: body, mode: mode })) + "\n-----END CRYPTEDMAIL " + mode + " MESSAGE-----";
+          byId("encryptedOutput").value = block;
+          byId("readerPaste").value = block;
+          byId("messagePreview").innerHTML = "<strong>" + subject + "</strong><p>From " + from + " to " + to + "</p><p>" + body + "</p>";
+        }
+
+        function readFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          try {
+            var text = byId("readerPaste").value.replace(/-----[^-]+-----/g, "").trim();
+            var msg = JSON.parse(atob(text));
+            byId("readerOutput").innerHTML = "<strong>" + msg.subject + "</strong><p>" + msg.mode + " | From " + msg.from + " to " + msg.to + "</p><p>" + msg.body + "</p>";
+          } catch (error) {
+            byId("readerOutput").innerHTML = "<strong>Could not read that message.</strong><p>Paste the full cryptedmail block.</p>";
+          }
+        }
+
+        function purchaseDetails(plan) {
+          if (plan === "vault") {
+            return {
+              title: "Vault",
+              price: "$9.99",
+              summary: "Full disposable email vault for power users, teams, and families.",
+              perks: ["Unlimited disposable mailboxes", "Vault admin box", "Mailbox style switching", "Color-coded identities", "VIP and lockdown controls", "Blockchain-backed admin receipts"]
+            };
+          }
+          return {
+            title: "Secure Plus",
+            price: "$4.99",
+            summary: "Upgrade to faster disposable addresses with blockchain-backed plan access.",
+            perks: ["10 active disposable addresses", "One-click shutdown", "Alias rotation", "Tracker blocking", "On-chain plan receipt"]
+          };
+        }
+
+        function openPurchaseFallback(plan) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          fallbackPlan = fallbackPlanName(plan);
+          var details = purchaseDetails(fallbackPlan);
+          byId("purchaseTitle").textContent = details.title;
+          byId("purchaseSummary").textContent = details.summary;
+          byId("purchasePrice").textContent = details.price;
+          byId("checkoutEmail").value = handle() + "@cryptedmail.com";
+          byId("purchasePerks").innerHTML = details.perks.map(function (perk) {
+            return "<li>" + perk + "</li>";
+          }).join("");
+          if (byId("purchaseDialog").showModal) {
+            byId("purchaseDialog").showModal();
+          }
+        }
+
+        function tryPlanFallback(plan) {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          openPaidMailboxFallback(typeof plan === "string" ? plan : fallbackPlan);
+        }
+
+        function addAliasFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          if (!document.body.classList.contains("is-authenticated")) {
+            openPaidMailboxFallback("plus");
+          }
+          var input = byId("aliasHandleInput");
+          var raw = input && input.value ? input.value : "alias-" + Math.floor(100 + Math.random() * 900);
+          var alias = raw.toLowerCase().replace("@cryptedmail.com", "").replace(/[^a-z0-9._-]/g, "-").replace(/^-+|-+$/g, "") + "@cryptedmail.com";
+          var existing = Array.from(byId("fromSelect")?.options || []).map(function (option) { return option.value; });
+          var base = alias.replace("@cryptedmail.com", "");
+          var suffix = 2;
+          while (existing.indexOf(alias) > -1) {
+            alias = base + "-" + suffix + "@cryptedmail.com";
+            suffix += 1;
+          }
+          var option = document.createElement("option");
+          option.value = alias;
+          option.textContent = alias;
+          option.selected = true;
+          byId("activeAddress").textContent = alias;
+          byId("fromInput").value = alias;
+          byId("activeAddressSelect")?.append(option.cloneNode(true));
+          byId("fromSelect")?.append(option);
+          var row = document.createElement("div");
+          row.className = "plan-address-row";
+          row.innerHTML = "<span>" + alias + "</span><strong>Alias</strong><button class='ghost-button compact burn-alias' type='button'>Burn</button>";
+          byId("planAddressList")?.append(row);
+          byId("messagePreview").innerHTML = "<strong>Address added.</strong><p>" + alias + " is ready. Pick it from the dropdown before sending.</p>";
+          if (input) {
+            input.value = "";
+          }
+        }
+
+        function openComposeFallback() {
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          if (!document.body.classList.contains("is-authenticated")) {
+            openMailbox();
+          }
+          byId("composePanel")?.classList.add("is-popped");
+          byId("composePanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          setTimeout(function () { byId("toInput")?.focus(); }, 160);
+          setTimeout(function () { byId("composePanel")?.classList.remove("is-popped"); }, 2200);
+        }
+
+        ready(function () {
+          if (location.search) {
+            history.replaceState(null, "", location.pathname + location.hash);
+          }
+          byId("homeLoginButton")?.addEventListener("click", function () { openAuth("login"); });
+          byId("heroLoginButton")?.addEventListener("click", function () { openAuth("login"); });
+          byId("loginTab")?.addEventListener("click", function () { openAuth("login"); });
+          byId("homeSignupButton")?.addEventListener("click", function () { openAuth("signup"); });
+          byId("heroSignupButton")?.addEventListener("click", function () { openAuth("signup"); });
+          byId("signupTab")?.addEventListener("click", function () { openAuth("signup"); });
+          document.querySelectorAll(".plan-signup").forEach(function (button) {
+            button.addEventListener("click", function () { openAuth("signup"); });
+          });
+          document.querySelectorAll(".plan-purchase").forEach(function (button) {
+            button.addEventListener("click", function () { openPurchaseFallback(button.dataset.plan); });
+          });
+          document.querySelectorAll(".crypto-pay").forEach(function (button) {
+            button.addEventListener("click", function () { payFallback(button.dataset.plan, "crypto"); });
+          });
+          document.querySelectorAll(".card-pay").forEach(function (button) {
+            button.addEventListener("click", function () { payFallback(button.dataset.plan, "card"); });
+          });
+          document.querySelectorAll(".membership-verify").forEach(function (button) {
+            button.addEventListener("click", function () { verifyMembershipFallback(button.dataset.plan); });
+          });
+          document.querySelectorAll(".plan-trial").forEach(function (button) {
+            button.addEventListener("click", function () { tryPlanFallback(button.dataset.plan); });
+          });
+          byId("closePurchase")?.addEventListener("click", function () { byId("purchaseDialog")?.close(); });
+          byId("tryPurchasePlan")?.addEventListener("click", function () { tryPlanFallback(fallbackPlan); });
+          byId("completePurchase")?.addEventListener("click", function () { tryPlanFallback(fallbackPlan); });
+          byId("authSubmit")?.addEventListener("click", openMailbox);
+          byId("authForm")?.addEventListener("submit", openMailbox);
+          byId("upgradeButton")?.addEventListener("click", openUpgradeFallback);
+          byId("backToMailboxButton")?.addEventListener("click", closeUpgradeFallback);
+          byId("connectWalletButton")?.addEventListener("click", connectWalletFallback);
+          byId("sendTipButton")?.addEventListener("click", sendTipFallback);
+          byId("generatePlanAddress")?.addEventListener("click", addAliasFallback);
+          byId("vaultThemeSelect")?.addEventListener("change", function () { vaultAdminFallback("theme"); });
+          byId("vaultVipButton")?.addEventListener("click", function () { vaultAdminFallback("vip"); });
+          byId("vaultGlowButton")?.addEventListener("click", function () { vaultAdminFallback("glow"); });
+          byId("vaultLockdownButton")?.addEventListener("click", function () { vaultAdminFallback("lockdown"); });
+          byId("vaultLinuxButton")?.addEventListener("click", function () { vaultAdminFallback("linux"); });
+          byId("vaultPrestigeButton")?.addEventListener("click", function () { vaultAdminFallback("prestige"); });
+          byId("vaultGhostButton")?.addEventListener("click", function () { vaultAdminFallback("ghost"); });
+          byId("vaultQueueButton")?.addEventListener("click", function () { vaultAdminFallback("queue"); });
+          byId("vaultXpButton")?.addEventListener("click", function () { vaultAdminFallback("xp"); });
+          byId("focusComposeButton")?.addEventListener("click", openComposeFallback);
+          byId("composeForm")?.addEventListener("submit", sendFallback);
+          byId("readEncryptedButton")?.addEventListener("click", readFallback);
+          byId("deactivateButton")?.addEventListener("click", function () {
+            if (!window.cryptedmailAppReady && confirm("Deactivate this disposable inbox? No questions.")) {
+              location.reload();
+            }
+          });
+        });
+      }());
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+{
+  "activeNetwork": "base",
+  "testMode": true,
+  "receivingAddress": "0x0e1ed12CE5145E8135bE7f1aADDD59a698BaA421",
+  "walletConnectProjectId": "REPLACE_WITH_WALLETCONNECT_PROJECT_ID",
+  "premiumAccessDays": 30,
+  "minConfirmations": 1,
+  "tiers": {
+    "plus": {
+      "name": "Secure Plus",
+      "priceUsdc": "4.99"
+    },
+    "vault": {
+      "name": "Vault",
+      "priceUsdc": "9.99"
+    }
+  },
+  "membershipTokens": {
+    "plus": {
+      "network": "base",
+      "tokenAddress": "",
+      "tokenType": "erc721",
+      "tokenId": "0"
+    },
+    "vault": {
+      "network": "base",
+      "tokenAddress": "",
+      "tokenType": "erc721",
+      "tokenId": "0"
+    }
+  },
+  "networks": {
+    "base": {
+      "name": "Base",
+      "chainId": 8453,
+      "currencySymbol": "ETH",
+      "rpcUrl": "https://mainnet.base.org",
+      "blockExplorerTx": "https://base.blockscout.com/tx/",
+      "usdcAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    },
+    "polygon": {
+      "name": "Polygon",
+      "chainId": 137,
+      "currencySymbol": "POL",
+      "rpcUrl": "https://polygon-rpc.com",
+      "blockExplorerTx": "https://polygonscan.com/tx/",
+      "usdcAddress": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+    }
+  }
+}
