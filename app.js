@@ -55,6 +55,7 @@ const els = {
   walletProviderSelect: document.querySelector("#walletProviderSelect"),
   walletAddressInput: document.querySelector("#walletAddressInput"),
   connectWalletButton: document.querySelector("#connectWalletButton"),
+  useTestWalletButton: document.querySelector("#useTestWalletButton"),
   walletHelpBox: document.querySelector("#walletHelpBox"),
   walletHelpTitle: document.querySelector("#walletHelpTitle"),
   walletHelpText: document.querySelector("#walletHelpText"),
@@ -233,6 +234,7 @@ function bindEvents() {
   els.upgradeButton.addEventListener("click", openUpgradeView);
   els.backToMailboxButton.addEventListener("click", openMailboxHome);
   els.connectWalletButton.addEventListener("click", connectWallet);
+  els.useTestWalletButton.addEventListener("click", connectTestWallet);
   els.useWalletConnectButton.addEventListener("click", () => {
     els.walletProviderSelect.value = "walletconnect";
     connectWallet();
@@ -1036,6 +1038,7 @@ function renderUpgradeView() {
   els.walletAddressInput.value = state.profile.walletAddress || "";
   els.walletStatus.textContent = state.profile.walletAddress ? `Connected: ${shortWallet(state.profile.walletAddress)}` : "No wallet connected.";
   els.upgradeUnlockStatus.textContent = upgradeStatusText(state.profile);
+  els.useTestWalletButton.hidden = !state.dappConfig?.testMode;
   els.tipStatus.textContent = state.profile.lastTip || "Tips are optional.";
   renderDappCheckout();
 
@@ -1110,6 +1113,7 @@ async function connectWallet() {
     hideWalletHelp();
     await ensureDappConfig();
     const requestedProvider = els.walletProviderSelect.value;
+    setDappStatus(`Opening ${walletProviderLabel(requestedProvider)}...`, "Wallet");
     let provider = await walletProviderFor(requestedProvider);
     if (!provider && els.walletProviderSelect.value !== "walletconnect" && state.dappConfig?.walletConnectConfigured) {
       showWalletHelp(requestedProvider);
@@ -1151,6 +1155,44 @@ async function connectWallet() {
       showWalletHelp(els.walletProviderSelect.value);
     }
   }
+}
+
+async function connectTestWallet() {
+  if (!state.profile) {
+    focusAuthMode("signup");
+    return;
+  }
+
+  try {
+    const config = await ensureDappConfig();
+    if (!config.testMode) {
+      showToast("Test wallet is disabled in live payment mode");
+      return;
+    }
+
+    const wallet = makeTestWalletAddress();
+    await apiPost("/api/dapp-connect-wallet", { email: state.profile.address, walletAddress: wallet });
+    state.connectedWalletAddress = wallet;
+    state.profile.walletAddress = wallet;
+    state.profile.walletConnectedAt = Date.now();
+    state.profile.upgradeStatus = "wallet-connected";
+    localStorage.setItem(walletLinkKey(state.profile.address), wallet);
+    persistCurrentProfile();
+    hideWalletHelp();
+    els.walletConnectQrBox.hidden = true;
+    render();
+    setDappStatus("Test wallet linked. Real USDC remains blocked in test mode.", "Test wallet");
+    showToast(`Test wallet linked: ${shortWallet(wallet)}`);
+  } catch (error) {
+    setDappStatus(error.message || "Test wallet failed", "Error");
+    showToast("Test wallet failed");
+  }
+}
+
+function makeTestWalletAddress() {
+  const bytes = new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  return `0x${Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
 }
 
 function scrollToWalletConnect() {
@@ -1357,6 +1399,7 @@ async function walletConnectProvider() {
     throw new Error("Set walletConnectProjectId in dapp-config.json");
   }
 
+  setDappStatus("Preparing WalletConnect QR...", "QR");
   const { EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2");
   const provider = await EthereumProvider.init({
     projectId: config.walletConnectProjectId,

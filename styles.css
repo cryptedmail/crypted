@@ -1094,6 +1094,10 @@ body.vault-prestige .plan-dashboard {
   gap: 8px;
 }
 
+.test-wallet-button {
+  justify-self: start;
+}
+
 .wallet-action-row {
   display: flex;
   flex-wrap: wrap;
