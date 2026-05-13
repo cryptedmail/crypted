@@ -4,13 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>cryptedmail</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=launch-owner-20260513">
   </head>
   <body class="is-logged-out">
     <div class="app-shell">
       <header class="site-header">
         <a class="brand" id="refreshBrand" href="index.html" aria-label="Open cryptedmail mailbox home">
           <span class="brand-mark" aria-hidden="true">
+            <img class="brand-logo-img" src="assets/cryptedmail-owl-logo.png?v=launch-owner-20260513" alt="">
             <svg class="crypted-logo" viewBox="0 0 128 128" focusable="false" shape-rendering="geometricPrecision">
               <path class="logo-envelope" d="M17 75h94v34c0 5-4 9-9 9H26c-5 0-9-4-9-9V75Z"></path>
               <path class="logo-envelope-fold" d="M18 77 64 104l46-27M18 116l32-28M110 116 78 88"></path>
@@ -43,12 +44,12 @@
         </button>
 
         <nav class="marketing-nav" id="marketingNav" aria-label="Site">
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#download">Download</a>
-          <a href="#blog">Blog</a>
-          <a href="#about">About us</a>
-          <a href="#support">Support</a>
+          <a href="#features" data-marketing-link="features">Features</a>
+          <a href="#pricing" data-marketing-link="pricing">Pricing</a>
+          <a href="#download" data-marketing-link="download">Download</a>
+          <a href="#blog" data-marketing-link="blog">Blog</a>
+          <a href="#about" data-marketing-link="about">About us</a>
+          <a href="#support" data-marketing-link="support">Support</a>
         </nav>
 
         <nav class="header-actions" aria-label="Account">
@@ -62,7 +63,7 @@
           <div class="hero-copy">
             <p class="eyebrow">Disposable email with receipts you control</p>
             <h1>cryptedmail</h1>
-            <p class="hero-text">Create clean @cryptedmail.com addresses for every part of your life, keep them in one familiar mailbox, and burn any address the moment it starts leaking, tracking, or collecting spam. cryptedmail keeps message content off-chain and uses blockchain-backed receipts for ownership, plan access, public keys, and deactivation proof.</p>
+            <p class="hero-text">Create clean @cryptedmail.com addresses for every part of your life, keep them in one familiar mailbox, and burn any address the moment it starts leaking, tracking, or collecting spam. cryptedmail combines receiver-locked encryption, disposable identity controls, private off-chain message storage, and blockchain-verified upgrade receipts.</p>
 
             <div class="hero-actions">
               <button class="primary-button" id="heroSignupButton" type="button">Get secure mail</button>
@@ -74,11 +75,20 @@
               <span>Account ownership, plan access, public keys, and deactivate receipts are verifiable. Email content stays private and off-chain.</span>
             </div>
 
-            <section class="marketing-section" id="features" aria-labelledby="featuresTitle">
+            <div class="hero-identity-card">
+              <img src="assets/cryptedmail-owl-hero.png" alt="cryptedmail owl holding an encrypted envelope">
+              <div>
+                <p class="eyebrow">New identity mark</p>
+                <h2>Night-mail security with a clean inbox feel.</h2>
+                <p>The owl mark now carries the product: private, alert, disposable, and built around the protected message.</p>
+              </div>
+            </div>
+
+            <section class="marketing-section" id="features" data-marketing-page="features" aria-labelledby="featuresTitle">
               <div class="section-heading">
                 <p class="eyebrow">Features</p>
-                <h2 id="featuresTitle">Disposable privacy that moves faster than leaks.</h2>
-                <p>cryptedmail is built around quick exits, not permanent aliases. Keep normal email, separate every identity, lock encrypted messages to the sender and receiver, and burn an exposed address before it becomes your problem.</p>
+                <h2 id="featuresTitle">Advanced privacy that still feels like email.</h2>
+                <p>cryptedmail is built around quick exits, not permanent aliases. Keep a normal Gmail-like mailbox, separate every identity, lock encrypted messages to the sender and receiver, and burn an exposed address before it becomes your problem.</p>
               </div>
 
               <div class="feature-grid">
@@ -115,37 +125,37 @@
               </div>
             </section>
 
-            <section class="compare-strip" aria-labelledby="switchTitle">
+            <section class="compare-strip" data-marketing-page="features" aria-labelledby="switchTitle">
               <div>
                 <p class="eyebrow">Why switch</p>
                 <h2 id="switchTitle">Private email should let you disappear from spam fast.</h2>
               </div>
               <div class="switch-grid">
-                <span>Unlimited Vault aliases instead of tight paid caps</span>
+                <span>Vault includes unlimited aliases and 1TB private storage</span>
                 <span>Wallet upgrades without forcing wallets on free users</span>
                 <span>Disposable-first burn controls built into the mailbox</span>
                 <span>Blockchain receipts without putting message content on-chain</span>
               </div>
             </section>
 
-            <div class="pricing-heading" id="pricing">
+            <div class="pricing-heading" id="pricing" data-marketing-page="pricing">
               <p class="eyebrow">Pricing</p>
-              <h2>Start free, upgrade only when you need more identities.</h2>
+              <h2>Start free, upgrade when you need more identities and storage.</h2>
             </div>
 
-            <div class="plans-grid" id="plansGrid" aria-label="cryptedmail subscription plans">
+            <div class="plans-grid" id="plansGrid" data-marketing-page="pricing" aria-label="cryptedmail subscription plans">
               <article class="plan-card" data-plan="starter">
                 <span>Starter</span>
                 <strong>Free</strong>
                 <small>$0 / month</small>
-                <p>1 disposable address, blockchain-backed ownership, instant deactivate, receiver-only encryption, encrypted reader, and a clean inbox.</p>
+                <p>1 disposable address, 500MB encrypted storage, instant deactivate, receiver-only encryption, encrypted reader, and a clean mailbox.</p>
                 <button class="primary-button plan-signup" type="button" data-plan="starter">Get secure mail</button>
               </article>
               <article class="plan-card is-featured" data-plan="plus">
                 <span>Secure Plus</span>
                 <strong>$5</strong>
                 <small>/ month</small>
-                <p>10 disposable addresses, one-click shutdown, alias rotation, tracker blocking, larger encrypted storage, and on-chain plan access.</p>
+                <p>10 disposable addresses, 100GB encrypted storage, one-click shutdown, alias rotation, tracker blocking, and on-chain plan access.</p>
                 <div class="plan-actions">
                   <button class="primary-button plan-purchase" type="button" data-plan="plus">Purchase Secure Plus</button>
                   <button class="ghost-button compact plan-trial" type="button" data-plan="plus">Try Plus</button>
@@ -155,7 +165,7 @@
                 <span>Vault</span>
                 <strong>$10</strong>
                 <small>/ month</small>
-                <p>Unlimited disposable mailboxes, color-coded identities, mailbox style controls, team/family vaults, secure import, and chain-backed admin receipts.</p>
+                <p>Unlimited disposable mailboxes, 1TB encrypted storage, color-coded identities, style controls, team/family vaults, and chain-backed admin receipts.</p>
                 <div class="plan-actions">
                   <button class="primary-button plan-purchase" type="button" data-plan="vault">Purchase Vault</button>
                   <button class="ghost-button compact plan-trial" type="button" data-plan="vault">Try Vault</button>
@@ -163,32 +173,57 @@
               </article>
             </div>
 
-            <section class="terms-panel" id="terms" aria-labelledby="termsTitle">
+            <section class="storage-section" data-marketing-page="pricing" aria-labelledby="storageTitle">
+              <div class="section-heading">
+                <p class="eyebrow">Storage options</p>
+                <h2 id="storageTitle">Encrypted storage that scales with your identities.</h2>
+              </div>
+              <div class="storage-grid">
+                <article>
+                  <span>Free</span>
+                  <strong>500MB</strong>
+                  <p>Enough for a starter mailbox, encrypted blocks, and everyday disposable signups.</p>
+                </article>
+                <article>
+                  <span>Secure Plus</span>
+                  <strong>100GB</strong>
+                  <p>Room for active alias rotation, heavier sent history, attachments, and paid privacy workflows.</p>
+                </article>
+                <article>
+                  <span>Vault</span>
+                  <strong>1TB</strong>
+                  <p>Power-user storage for unlimited identities, family/team spaces, secure import, and long-term archive control.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="terms-panel" id="terms" data-marketing-page="pricing" aria-labelledby="termsTitle">
               <div>
                 <p class="eyebrow">Plain upgrade terms</p>
                 <h2 id="termsTitle">No lock-in maze, no seed phrases, no fake premium status.</h2>
               </div>
               <ul>
                 <li>Free accounts use email and password first. Wallet connection is optional until upgrading.</li>
-                <li>Secure Plus is $5/month for 10 active disposable addresses.</li>
-                <li>Vault is $10/month for unlimited disposable addresses and admin controls.</li>
+                <li>Free includes 1 disposable address and 500MB encrypted storage.</li>
+                <li>Secure Plus is $5/month for 10 active disposable addresses and 100GB encrypted storage.</li>
+                <li>Vault is $10/month for unlimited disposable addresses, 1TB encrypted storage, and admin controls.</li>
                 <li>Crypto checkout uses USDC on Base by default, with Polygon kept optional.</li>
                 <li>Premium unlocks only after backend payment verification or valid membership token proof.</li>
                 <li>Access runs for the configured premium period, currently 30 days per verified payment.</li>
               </ul>
             </section>
 
-            <section class="plan-detail-pages" aria-label="Paid plan demos">
+            <section class="plan-detail-pages" data-marketing-page="pricing" aria-label="Paid plan demos">
               <article class="plan-detail-page" id="securePlusPage" data-plan="plus">
                 <div class="detail-copy">
                   <p class="eyebrow">Secure Plus dashboard</p>
                   <h2>Ten disposable addresses, one clean mailbox.</h2>
-                  <p>Secure Plus is for people who want normal email with faster escape routes: create separate @cryptedmail.com addresses for shopping, signups, work, or unknown senders, rotate them, then deactivate the risky one without touching your main mailbox.</p>
+                  <p>Secure Plus is for people who want normal email with faster escape routes and serious encrypted capacity: create separate @cryptedmail.com addresses for shopping, signups, work, or unknown senders, rotate them, then deactivate the risky one without touching your main mailbox.</p>
                   <ul class="perk-list">
                     <li>10 active disposable @cryptedmail.com addresses</li>
+                    <li>100GB encrypted mailbox storage</li>
                     <li>Alias rotation for signups and risky websites</li>
                     <li>Tracker blocking and safer remote image handling</li>
-                    <li>Larger encrypted mailbox storage</li>
                     <li>Blockchain-backed plan access receipt</li>
                   </ul>
                 </div>
@@ -218,9 +253,10 @@
                 <div class="detail-copy">
                   <p class="eyebrow">Vault command center</p>
                   <h2>Unlimited disposable mailboxes for serious privacy.</h2>
-                  <p>Vault turns cryptedmail into a full disposable-email control room for teams, families, creators, and high-volume users. Keep every identity separated, import older mail, and shut down any exposed mailbox with no questions.</p>
+                  <p>Vault turns cryptedmail into a full disposable-email control room for teams, families, creators, and high-volume users. Keep every identity separated, store up to 1TB of encrypted mail, import older mail, and shut down any exposed mailbox with no questions.</p>
                   <ul class="perk-list">
                     <li>Unlimited disposable @cryptedmail.com mailboxes</li>
+                    <li>1TB encrypted mailbox storage</li>
                     <li>Shared family or team vault spaces</li>
                     <li>Multi-address routing and secure import</li>
                     <li>Admin color controls for every identity</li>
@@ -251,7 +287,7 @@
               </article>
             </section>
 
-            <section class="marketing-section device-section" id="download" aria-labelledby="downloadTitle">
+            <section class="marketing-section device-section" id="download" data-marketing-page="download" aria-labelledby="downloadTitle">
               <div class="section-heading">
                 <p class="eyebrow">Download</p>
                 <h2 id="downloadTitle">One mailbox, every screen.</h2>
@@ -278,7 +314,7 @@
               </div>
             </section>
 
-            <section class="marketing-section blog-section" id="blog" aria-labelledby="blogTitle">
+            <section class="marketing-section blog-section" id="blog" data-marketing-page="blog" aria-labelledby="blogTitle">
               <div class="section-heading">
                 <p class="eyebrow">Blog</p>
                 <h2 id="blogTitle">Security stories that make people want the product.</h2>
@@ -303,7 +339,7 @@
               </div>
             </section>
 
-            <section class="marketing-section about-section" id="about" aria-labelledby="aboutTitle">
+            <section class="marketing-section about-section" id="about" data-marketing-page="about" aria-labelledby="aboutTitle">
               <div class="section-heading">
                 <p class="eyebrow">About us</p>
                 <h2 id="aboutTitle">Built for people who need clean exits.</h2>
@@ -317,7 +353,7 @@
               </div>
             </section>
 
-            <section class="marketing-section support-section" id="support" aria-labelledby="supportTitle">
+            <section class="marketing-section support-section" id="support" data-marketing-page="support" aria-labelledby="supportTitle">
               <div class="section-heading">
                 <p class="eyebrow">Support</p>
                 <h2 id="supportTitle">Support built around recovery, abuse, and deliverability.</h2>
@@ -340,6 +376,10 @@
                   <h3>Deliverability</h3>
                   <p>Verification codes, external domains, attachment rules, and inbox routing guidance.</p>
                 </article>
+                <article>
+                  <h3>Owner console</h3>
+                  <p>Owner login unlocks support tickets, payment review, abuse freeze, reserved addresses, and system controls.</p>
+                </article>
               </div>
             </section>
 
@@ -349,13 +389,13 @@
                 <span>Disposable encrypted email with blockchain-verified upgrades.</span>
               </div>
               <nav aria-label="Footer">
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#download">Download</a>
-                <a href="#blog">Blog</a>
-                <a href="#about">About us</a>
-                <a href="#support">Support</a>
-                <a href="#terms">Terms</a>
+                <a href="#features" data-marketing-link="features">Features</a>
+                <a href="#pricing" data-marketing-link="pricing">Pricing</a>
+                <a href="#download" data-marketing-link="download">Download</a>
+                <a href="#blog" data-marketing-link="blog">Blog</a>
+                <a href="#about" data-marketing-link="about">About us</a>
+                <a href="#support" data-marketing-link="support">Support</a>
+                <a href="#terms" data-marketing-link="pricing">Terms</a>
               </nav>
             </footer>
           </div>
@@ -383,6 +423,7 @@
               <input id="passphraseInput" name="passphrase" type="password" autocomplete="current-password" placeholder="minimum 4 characters" minlength="4">
 
               <button class="primary-button" id="authSubmit" type="button">Create account</button>
+              <button class="ghost-button owner-login-button" id="ownerLoginButton" type="button">Open owner support console</button>
             </form>
 
             <div class="signup-reasons">
@@ -411,6 +452,15 @@
               <button class="deactivate-button" id="deactivateButton" type="button">Deactivate</button>
             </div>
           </header>
+
+          <section class="owner-hero-banner" id="ownerHeroBanner" aria-label="Owner account status">
+            <div>
+              <p class="eyebrow">Owner mode</p>
+              <h3>Support, billing, abuse, and platform controls are unlocked.</h3>
+              <span>Use the address dropdown to send from reserved owner addresses, then use the command center on the right.</span>
+            </div>
+            <strong id="ownerVersionBadge">Owner console active</strong>
+          </section>
 
           <section class="upgrade-view" id="upgradeView" aria-label="Upgrade cryptedmail">
             <div class="upgrade-hero">
@@ -526,9 +576,10 @@
                 <span>Secure Plus</span>
                 <strong>$5</strong>
                 <small>/ month</small>
-                <p>For people who want more disposable addresses without changing how email feels.</p>
+                <p>For people who want more disposable addresses and serious encrypted storage without changing how email feels.</p>
                 <ul>
                   <li>10 active @cryptedmail.com addresses</li>
+                  <li>100GB encrypted storage</li>
                   <li>Unified or separated inbox views</li>
                   <li>One-click address burn controls</li>
                   <li>Tracker-aware paid mailbox mode</li>
@@ -545,9 +596,10 @@
                 <span>Vault</span>
                 <strong>$10</strong>
                 <small>/ month</small>
-                <p>The paid admin layer: unlimited aliases, color-coded identities, mailbox skins, and extra control tools.</p>
+                <p>The paid admin layer: unlimited aliases, 1TB storage, color-coded identities, mailbox skins, and extra control tools.</p>
                 <ul>
                   <li>Unlimited disposable addresses</li>
+                  <li>1TB encrypted storage</li>
                   <li>Vault admin box on the mailbox home</li>
                   <li>Color-code every address for organization</li>
                   <li>Change the whole Vault mailbox style</li>
@@ -719,6 +771,32 @@
                   </div>
                 </section>
 
+                <section class="owner-tools owner-admin-panel" id="ownerTools" aria-labelledby="ownerAdminTitle" hidden>
+                  <div class="panel-title tight">
+                    <div>
+                      <h3 id="ownerAdminTitle">Owner command center</h3>
+                      <span>Only the owner account can see support, payment review, and platform controls.</span>
+                    </div>
+                    <span class="status-chip">Owner</span>
+                  </div>
+
+                  <div class="owner-action-grid">
+                    <button class="ghost-button compact" id="ownerGrantVaultButton" type="button">Grant Vault</button>
+                    <button class="ghost-button compact" id="ownerVerifyPaymentButton" type="button">Verify payment</button>
+                    <button class="ghost-button compact" id="ownerFreezeAddressButton" type="button">Freeze address</button>
+                    <button class="ghost-button compact" id="ownerResolveSupportButton" type="button">Resolve ticket</button>
+                    <button class="ghost-button compact" id="ownerExportSupportButton" type="button">Export queue</button>
+                    <button class="ghost-button compact" id="ownerSystemModeButton" type="button">Maintenance mode</button>
+                  </div>
+
+                  <div class="owner-support-queue" id="ownerSupportQueue" aria-label="Owner support queue"></div>
+
+                  <div class="admin-status owner-status" id="ownerAdminStatus">
+                    <strong>Owner controls ready.</strong>
+                    <p>Support and platform controls apply only to the owner account.</p>
+                  </div>
+                </section>
+
                 <div class="encrypted-box">
                   <div class="panel-title tight">
                     <h3>Encrypted copy</h3>
@@ -816,6 +894,28 @@
           return document.getElementById(id);
         }
 
+        function closeMarketingMenu() {
+          document.body.classList.remove("nav-open");
+          byId("navMenuButton")?.setAttribute("aria-expanded", "false");
+        }
+
+        function toggleMarketingMenu() {
+          var isOpen = document.body.classList.toggle("nav-open");
+          byId("navMenuButton")?.setAttribute("aria-expanded", String(isOpen));
+        }
+
+        function bindMarketingMenuFallback() {
+          var button = byId("navMenuButton");
+          if (!button || button.dataset.menuBound) {
+            return;
+          }
+          button.dataset.menuBound = "true";
+          button.addEventListener("click", toggleMarketingMenu);
+          document.querySelectorAll(".marketing-nav a, .home-footer a").forEach(function (link) {
+            link.addEventListener("click", closeMarketingMenu);
+          });
+        }
+
         var fallbackPlan = "plus";
 
         function fallbackPlanName(plan) {
@@ -877,6 +977,37 @@
           document.querySelector(".dashboard-view")?.scrollIntoView({ behavior: "smooth", block: "start" });
         }
 
+        function openOwnerMailboxFallback(event) {
+          if (event) {
+            event.preventDefault();
+          }
+          if (window.cryptedmailAppReady) {
+            return;
+          }
+          byId("addressInput").value = "support";
+          byId("passphraseInput").value = "owner1234";
+          openMailbox();
+          document.body.classList.add("is-owner", "plan-vault");
+          byId("activeAddress").textContent = "support@cryptedmail.com";
+          if (byId("activeAddressSelect")) {
+            byId("activeAddressSelect").innerHTML = '<option value="support@cryptedmail.com">support@cryptedmail.com</option><option value="owner@cryptedmail.com">owner@cryptedmail.com</option><option value="admin@cryptedmail.com">admin@cryptedmail.com</option>';
+          }
+          if (byId("fromSelect")) {
+            byId("fromSelect").innerHTML = '<option value="support@cryptedmail.com">support@cryptedmail.com</option><option value="owner@cryptedmail.com">owner@cryptedmail.com</option><option value="admin@cryptedmail.com">admin@cryptedmail.com</option>';
+          }
+          byId("mailboxTitle").textContent = "Owner Inbox";
+          byId("mailboxPanelTitle").textContent = "Owner Inbox";
+          byId("planBadge").textContent = "Owner";
+          byId("planDashboardEyebrow").textContent = "Owner Console";
+          byId("planDashboardTitle").textContent = "Full platform controls unlocked.";
+          byId("planDashboardText").textContent = "Owner mode includes Vault, 1TB encrypted storage, reserved support addresses, manual payment review tools, support queue controls, and system switches.";
+          if (byId("ownerTools")) {
+            byId("ownerTools").hidden = false;
+          }
+          byId("messageList").innerHTML = '<button class="message-card is-selected" type="button"><strong>Owner command center is ready</strong><span>From owner-system@cryptedmail.com</span><span>Support, payment review, Vault controls, and admin routing are unlocked.</span></button>';
+          byId("messagePreview").innerHTML = '<strong>Owner command center is ready.</strong><p>This account controls support, billing, abuse review, manual premium checks, reserved addresses, and Vault admin tools.</p>';
+        }
+
         function openPaidMailboxFallback(plan) {
           if (window.cryptedmailAppReady) {
             return;
@@ -902,7 +1033,7 @@
           byId("planBadge").textContent = fallbackPlan === "vault" ? "Vault" : "Secure Plus";
           byId("planDashboardEyebrow").textContent = fallbackPlan === "vault" ? "Vault News" : "Secure Plus News";
           byId("planDashboardTitle").textContent = fallbackPlan === "vault" ? "Admin lobby updates." : "Paid address updates.";
-          byId("planDashboardText").textContent = fallbackPlan === "vault" ? "Vault adds Linux/modded-lobby style controls for the paid power layer." : "Secure Plus keeps multiple disposable addresses simple and clean.";
+          byId("planDashboardText").textContent = fallbackPlan === "vault" ? "Vault adds 1TB encrypted storage plus Linux/modded-lobby style controls." : "Secure Plus adds 100GB encrypted storage while keeping multiple disposable addresses simple.";
           if (byId("vaultTools")) {
             byId("vaultTools").hidden = fallbackPlan !== "vault";
           }
@@ -1067,15 +1198,15 @@
             return {
               title: "Vault",
               price: "$10",
-              summary: "Full disposable email vault for power users, teams, and families.",
-              perks: ["Unlimited disposable mailboxes", "Vault admin box", "Mailbox style switching", "Color-coded identities", "VIP and lockdown controls", "Blockchain-backed admin receipts"]
+              summary: "Full disposable email vault with 1TB encrypted storage for power users, teams, and families.",
+              perks: ["Unlimited disposable mailboxes", "1TB encrypted storage", "Vault admin box", "Mailbox style switching", "Color-coded identities", "VIP and lockdown controls", "Blockchain-backed admin receipts"]
             };
           }
           return {
             title: "Secure Plus",
             price: "$5",
-            summary: "Upgrade to faster disposable addresses with blockchain-backed plan access.",
-            perks: ["10 active disposable addresses", "One-click shutdown", "Alias rotation", "Tracker blocking", "On-chain plan receipt"]
+            summary: "Upgrade to faster disposable addresses, 100GB encrypted storage, and blockchain-backed plan access.",
+            perks: ["10 active disposable addresses", "100GB encrypted storage", "One-click shutdown", "Alias rotation", "Tracker blocking", "On-chain plan receipt"]
           };
         }
 
@@ -1156,6 +1287,7 @@
           if (location.search) {
             history.replaceState(null, "", location.pathname + location.hash);
           }
+          bindMarketingMenuFallback();
           byId("homeLoginButton")?.addEventListener("click", function () { openAuth("login"); });
           byId("heroLoginButton")?.addEventListener("click", function () { openAuth("login"); });
           byId("loginTab")?.addEventListener("click", function () { openAuth("login"); });
@@ -1185,6 +1317,7 @@
           byId("completePurchase")?.addEventListener("click", function () { tryPlanFallback(fallbackPlan); });
           byId("authSubmit")?.addEventListener("click", openMailbox);
           byId("authForm")?.addEventListener("submit", openMailbox);
+          byId("ownerLoginButton")?.addEventListener("click", openOwnerMailboxFallback);
           byId("upgradeButton")?.addEventListener("click", openUpgradeFallback);
           byId("backToMailboxButton")?.addEventListener("click", closeUpgradeFallback);
           byId("connectWalletButton")?.addEventListener("click", connectWalletFallback);
@@ -1210,6 +1343,6 @@
         });
       }());
     </script>
-    <script src="app.js"></script>
+    <script src="app.js?v=launch-owner-20260513"></script>
   </body>
 </html>

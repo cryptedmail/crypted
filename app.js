@@ -1,10 +1,28 @@
 const brandName = "cryptedmail";
+const appVersion = "launch-owner-20260513";
 const mailDomain = "cryptedmail.com";
 const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
+const ownerSessionKey = "cryptedmail-owner-session-v1";
 const supabaseSessionKey = "cryptedmail-supabase-session-v1";
 const deployedApiBase = "https://crypted-i9mu.vercel.app";
 const dappApiBase = window.location.protocol === "file:" ? deployedApiBase : "";
+const ownerAddress = `owner@${mailDomain}`;
+const ownerDefaultPassword = "owner1234";
+const ownerReservedAddresses = [
+  ownerAddress,
+  `support@${mailDomain}`,
+  `abuse@${mailDomain}`,
+  `billing@${mailDomain}`,
+  `admin@${mailDomain}`
+];
+const marketingPageIds = ["features", "pricing", "download", "blog", "about", "support"];
+const marketingHashMap = {
+  terms: "pricing",
+  securePlusPage: "pricing",
+  vaultPage: "pricing",
+  plansGrid: "pricing"
+};
 
 const state = {
   authMode: "signup",
@@ -43,6 +61,7 @@ const els = {
   authEyebrow: document.querySelector("#authEyebrow"),
   authTitle: document.querySelector("#authTitle"),
   authSubmit: document.querySelector("#authSubmit"),
+  ownerLoginButton: document.querySelector("#ownerLoginButton"),
   addressInput: document.querySelector("#addressInput"),
   passphraseInput: document.querySelector("#passphraseInput"),
   randomAddressButton: document.querySelector("#randomAddressButton"),
@@ -111,6 +130,16 @@ const els = {
   vaultQueueButton: document.querySelector("#vaultQueueButton"),
   vaultXpButton: document.querySelector("#vaultXpButton"),
   vaultAdminStatus: document.querySelector("#vaultAdminStatus"),
+  ownerTools: document.querySelector("#ownerTools"),
+  ownerSupportQueue: document.querySelector("#ownerSupportQueue"),
+  ownerAdminStatus: document.querySelector("#ownerAdminStatus"),
+  ownerVersionBadge: document.querySelector("#ownerVersionBadge"),
+  ownerGrantVaultButton: document.querySelector("#ownerGrantVaultButton"),
+  ownerVerifyPaymentButton: document.querySelector("#ownerVerifyPaymentButton"),
+  ownerFreezeAddressButton: document.querySelector("#ownerFreezeAddressButton"),
+  ownerResolveSupportButton: document.querySelector("#ownerResolveSupportButton"),
+  ownerExportSupportButton: document.querySelector("#ownerExportSupportButton"),
+  ownerSystemModeButton: document.querySelector("#ownerSystemModeButton"),
   planAddressList: document.querySelector("#planAddressList"),
   paidPerkGrid: document.querySelector("#paidPerkGrid"),
   focusComposeButton: document.querySelector("#focusComposeButton"),
@@ -150,25 +179,87 @@ const els = {
 
 boot();
 
-function boot() {
+async function boot() {
   if (window.location.search) {
     window.history.replaceState(null, "", window.location.pathname + window.location.hash);
   }
 
+  window.cryptedmailVersion = appVersion;
+  document.documentElement.dataset.cryptedmailVersion = appVersion;
+  await ensureOwnerAccount();
   discoverInjectedWallets();
   loadDappConfig();
 
-  const sessionAddress = sessionStorage.getItem(sessionKey);
-  if (sessionAddress && state.accounts[sessionAddress]) {
+  const sessionAddress = normalizeEmail(sessionStorage.getItem(sessionKey));
+  const ownerSessionAddress = ownerAddressFromInput(sessionAddress || localStorage.getItem(ownerSessionKey));
+  if (ownerSessionAddress && state.accounts[ownerAddress]) {
+    openOwnerSession(ownerSessionAddress);
+  } else if (sessionAddress && state.accounts[sessionAddress]) {
     setCurrentAccount(sessionAddress);
   }
   hydrateWalletLink();
 
   bindEvents();
+  initMarketingPages();
   setAuthMode("signup");
   selectPlan("starter");
   render();
   window.cryptedmailAppReady = true;
+}
+
+function initMarketingPages() {
+  setMarketingPage(marketingPageFromHash(window.location.hash), { scroll: false });
+  window.addEventListener("hashchange", () => {
+    setMarketingPage(marketingPageFromHash(window.location.hash), {
+      scroll: !state.authenticated,
+      scrollId: hashId(window.location.hash)
+    });
+  });
+}
+
+function handleMarketingLinkClick(event, link) {
+  const id = hashId(link.getAttribute("href") || "");
+  const page = marketingPageFromHash(`#${id}`);
+  if (!page) {
+    return;
+  }
+
+  event.preventDefault();
+  document.body.classList.remove("nav-open");
+  els.navMenuButton.setAttribute("aria-expanded", "false");
+  setMarketingPage(page, { updateHash: id, scroll: true, scrollId: id });
+}
+
+function marketingPageFromHash(hash) {
+  const id = hashId(hash);
+  if (marketingPageIds.includes(id)) {
+    return id;
+  }
+  return marketingHashMap[id] || "features";
+}
+
+function hashId(hash) {
+  return String(hash || "").replace(/^#/, "").trim();
+}
+
+function setMarketingPage(page, options = {}) {
+  const nextPage = marketingPageIds.includes(page) ? page : "features";
+  document.querySelectorAll("[data-marketing-page]").forEach((section) => {
+    section.hidden = section.dataset.marketingPage !== nextPage;
+  });
+
+  document.querySelectorAll("[data-marketing-link]").forEach((link) => {
+    link.classList.toggle("is-active", link.dataset.marketingLink === nextPage);
+  });
+
+  if (options.updateHash) {
+    window.history.pushState(null, "", `#${options.updateHash}`);
+  }
+
+  if (options.scroll) {
+    const scrollTarget = document.getElementById(options.scrollId || nextPage);
+    (scrollTarget || els.homeView)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function bindEvents() {
@@ -177,16 +268,16 @@ function bindEvents() {
     openMailboxHome();
   });
 
-  els.navMenuButton.addEventListener("click", () => {
-    const isOpen = document.body.classList.toggle("nav-open");
-    els.navMenuButton.setAttribute("aria-expanded", String(isOpen));
-  });
+  if (!els.navMenuButton.dataset.menuBound) {
+    els.navMenuButton.dataset.menuBound = "true";
+    els.navMenuButton.addEventListener("click", () => {
+      const isOpen = document.body.classList.toggle("nav-open");
+      els.navMenuButton.setAttribute("aria-expanded", String(isOpen));
+    });
+  }
 
   document.querySelectorAll(".marketing-nav a, .home-footer a").forEach((link) => {
-    link.addEventListener("click", () => {
-      document.body.classList.remove("nav-open");
-      els.navMenuButton.setAttribute("aria-expanded", "false");
-    });
+    link.addEventListener("click", (event) => handleMarketingLinkClick(event, link));
   });
 
   document.querySelectorAll("[data-auth-action]").forEach((button) => {
@@ -246,9 +337,16 @@ function bindEvents() {
   els.vaultGhostButton.addEventListener("click", () => runVaultAdminAction("ghost"));
   els.vaultQueueButton.addEventListener("click", () => runVaultAdminAction("queue"));
   els.vaultXpButton.addEventListener("click", () => runVaultAdminAction("xp"));
+  els.ownerGrantVaultButton.addEventListener("click", () => runOwnerAction("grant-vault"));
+  els.ownerVerifyPaymentButton.addEventListener("click", () => runOwnerAction("verify-payment"));
+  els.ownerFreezeAddressButton.addEventListener("click", () => runOwnerAction("freeze-address"));
+  els.ownerResolveSupportButton.addEventListener("click", () => runOwnerAction("resolve-support"));
+  els.ownerExportSupportButton.addEventListener("click", () => runOwnerAction("export-support"));
+  els.ownerSystemModeButton.addEventListener("click", () => runOwnerAction("system-mode"));
 
   els.authForm.addEventListener("submit", handleAuthSubmit);
   els.authSubmit.addEventListener("click", handleAuthSubmit);
+  els.ownerLoginButton?.addEventListener("click", quickOwnerLogin);
   els.signOutButton.addEventListener("click", signOut);
   els.upgradeButton.addEventListener("click", openUpgradeView);
   els.backToMailboxButton.addEventListener("click", openMailboxHome);
@@ -481,8 +579,9 @@ function setAuthMode(mode) {
 async function handleAuthSubmit(event) {
   event.preventDefault();
 
+  const requestedOwnerAddress = ownerAddressFromInput(els.addressInput.value);
   const handle = normalizeHandle(els.addressInput.value) || generateHandle();
-  const address = handle ? `${handle}@${mailDomain}` : "";
+  const address = requestedOwnerAddress || (handle ? `${handle}@${mailDomain}` : "");
   const passphrase = els.passphraseInput.value || "demo-pass";
   const recovery = "";
 
@@ -493,6 +592,11 @@ async function handleAuthSubmit(event) {
 
   if (passphrase.length < 4) {
     showToast("Use 4 or more password characters");
+    return;
+  }
+
+  if (requestedOwnerAddress) {
+    await openOwnerAccount(passphrase, address);
     return;
   }
 
@@ -593,6 +697,39 @@ async function handleAuthSubmit(event) {
   }
   showToast("Mailbox unlocked");
   render();
+}
+
+async function openOwnerAccount(passphrase, requestedAddress = ownerAddress) {
+  const requestedOwnerAddress = ownerAddressFromInput(requestedAddress) || ownerAddress;
+  const existingReservedProof = requestedOwnerAddress !== ownerAddress
+    ? state.accounts[requestedOwnerAddress]?.proof
+    : "";
+  await ensureOwnerAccount();
+  const account = state.accounts[ownerAddress];
+  const proof = await hashText(passphrase);
+  const ownerProof = await hashText(ownerDefaultPassword);
+  const sendingAddress = ownerAddressFromInput(requestedOwnerAddress) || ownerAddress;
+
+  const usedReservedPassword = Boolean(existingReservedProof && existingReservedProof === proof);
+  if (!account || (account.proof !== proof && ownerProof !== proof && !usedReservedPassword)) {
+    showToast("Owner password incorrect");
+    return;
+  }
+
+  if (usedReservedPassword && account.proof !== proof) {
+    account.proof = proof;
+  }
+  openOwnerSession(sendingAddress);
+  clearAuthSecrets();
+  showToast(`Owner command center unlocked as ${sendingAddress}`);
+  render();
+}
+
+async function quickOwnerLogin() {
+  setAuthMode("login");
+  els.addressInput.value = "support";
+  els.passphraseInput.value = ownerDefaultPassword;
+  await openOwnerAccount(ownerDefaultPassword, `support@${mailDomain}`);
 }
 
 async function continuePendingUpgradeAfterAuth() {
@@ -933,6 +1070,7 @@ function importPrivateKey(jwk) {
 function render() {
   document.body.classList.toggle("is-authenticated", state.authenticated);
   document.body.classList.toggle("is-logged-out", !state.authenticated);
+  document.body.classList.toggle("is-owner", isOwnerAccount());
   document.body.classList.remove(
     "plan-starter",
     "plan-plus",
@@ -987,7 +1125,7 @@ function openUpgradeView() {
 
 function openMailboxHome() {
   if (!state.authenticated || !state.profile) {
-    window.location.href = "index.html";
+    setMarketingPage("features", { updateHash: "features", scroll: true, scrollId: "homeView" });
     return;
   }
 
@@ -1809,39 +1947,49 @@ function renderPlanDashboard() {
   const plan = state.profile.plan || "starter";
   const addresses = state.profile.addresses || [state.profile.address];
   const newsBoards = {
+    owner: {
+      eyebrow: "Owner Console",
+      title: "Full platform controls unlocked.",
+      text: "Owner mode includes Vault, 1TB encrypted storage, reserved support addresses, manual payment review tools, support queue controls, and system-level demo switches.",
+      metrics: [
+        ["Owner account has every Vault power plus support controls.", "#01"],
+        [`${openSupportTicketCount()} support tickets waiting in queue.`, "#02"],
+        [`${addresses.length} reserved/admin addresses active.`, "#03"]
+      ]
+    },
     starter: {
       eyebrow: "Free News",
       title: "Basic mailbox updates.",
-      text: "Free users get the clean email/password mailbox first, with clear upgrade paths when they want more.",
+      text: "Free users get the clean email/password mailbox first, 500MB encrypted storage, and clear upgrade paths when they want more.",
       metrics: [
         ["Email/password login now opens the regular mailbox first.", "#01"],
-        ["Upgrade button added beside the address dropdown.", "#02"],
+        ["500MB encrypted storage is included on Free.", "#02"],
         ["Encrypted reader and disposable deactivate remain available.", "#03"]
       ]
     },
     plus: {
       eyebrow: "Secure Plus News",
       title: "Paid address updates.",
-      text: "Secure Plus focuses on more disposable identities while keeping the mailbox simple.",
+      text: "Secure Plus focuses on more disposable identities, 100GB encrypted storage, and a mailbox that still feels simple.",
       metrics: [
         ["10-address paid mailbox mode is active.", "#01"],
-        ["Address picker separates senders without clutter.", "#02"],
+        ["100GB encrypted storage is active.", "#02"],
         ["Crypto, card, and token upgrade paths are wired.", "#03"]
       ]
     },
     vault: {
       eyebrow: "Vault News",
       title: "Admin lobby updates.",
-      text: "Vault adds Linux/modded-lobby style controls for people who want the paid power layer.",
+      text: "Vault adds 1TB encrypted storage and Linux/modded-lobby style controls for people who want the paid power layer.",
       metrics: [
-        ["Vault admin moved above the encrypted copy for faster access.", "#01"],
+        ["1TB encrypted storage is active for Vault.", "#01"],
         ["Linux lobby, prestige, ghost route, burn queue, and XP boost added.", "#02"],
         [`${addresses.length} addresses active with ${vaultThemeLabel(state.profile.vaultTheme || "linux")} styling.`, "#03"]
       ]
     }
   };
 
-  const details = newsBoards[plan] || newsBoards.starter;
+  const details = isOwnerAccount() ? newsBoards.owner : newsBoards[plan] || newsBoards.starter;
   els.planDashboardEyebrow.textContent = details.eyebrow;
   els.planDashboardTitle.textContent = details.title;
   els.planDashboardText.textContent = details.text;
@@ -1868,7 +2016,7 @@ function renderPlanTools() {
   const limit = planAddressLimit(plan);
   const canAddMore = limit === Infinity || addresses.length < limit;
 
-  els.planBadge.textContent = planLabel(plan);
+  els.planBadge.textContent = isOwnerAccount() ? "Owner" : planLabel(plan);
   els.planToolsSummary.textContent = planToolSummary(plan, addresses.length, limit);
   els.generatePlanAddress.textContent = plan === "starter" ? "Unlock & add" : canAddMore ? "Add" : "Full";
   els.generatePlanAddress.disabled = plan !== "starter" && !canAddMore;
@@ -1876,6 +2024,7 @@ function renderPlanTools() {
   els.planAddressList.innerHTML = "";
   els.paidPerkGrid.innerHTML = "";
   renderVaultAdmin(plan);
+  renderOwnerTools();
 
   addresses.forEach((address) => {
     const row = document.createElement("div");
@@ -1935,6 +2084,135 @@ function renderVaultAdmin(plan = state.profile?.plan || "starter") {
   els.addressColorInput.value = colorForAddress(currentSendingAddress());
   els.vaultAdminStatus.innerHTML = `<strong>${state.profile.vaultAdminStatus || "Admin ready."}</strong><p>${currentSendingAddress()} is selected for admin actions.</p>`;
   els.vaultGlowButton.textContent = state.profile.vaultGlow ? "Glow on" : "Boost glow";
+}
+
+function renderOwnerTools() {
+  if (!els.ownerTools) {
+    return;
+  }
+
+  const ownerActive = isOwnerAccount();
+  els.ownerTools.hidden = !ownerActive;
+  if (!ownerActive || !state.profile) {
+    return;
+  }
+
+  applyOwnerDefaults(state.profile);
+  if (els.ownerVersionBadge) {
+    els.ownerVersionBadge.textContent = `Owner console active - ${appVersion}`;
+  }
+  els.ownerSupportQueue.innerHTML = "";
+  state.profile.supportQueue.forEach((ticket) => {
+    const row = document.createElement("article");
+    row.className = `owner-ticket ${ticket.status === "Resolved" ? "is-resolved" : ""}`;
+
+    const title = document.createElement("strong");
+    title.textContent = `${ticket.id} · ${ticket.subject}`;
+    const meta = document.createElement("span");
+    meta.textContent = `${ticket.priority} priority · ${ticket.status} · ${ticket.from}`;
+    const detail = document.createElement("p");
+    detail.textContent = ticket.detail;
+
+    row.append(title, meta, detail);
+    els.ownerSupportQueue.append(row);
+  });
+
+  els.ownerAdminStatus.innerHTML = `<strong>${state.profile.ownerAdminStatus || "Owner controls ready."}</strong><p>${openSupportTicketCount()} open support tickets. ${state.profile.ownerAudit.length} owner audit events saved locally.</p>`;
+  els.ownerSystemModeButton.textContent = state.profile.ownerMaintenance ? "Maintenance on" : "Maintenance mode";
+}
+
+function openSupportTicketCount() {
+  if (!state.profile?.supportQueue) {
+    return 0;
+  }
+  return state.profile.supportQueue.filter((ticket) => ticket.status !== "Resolved").length;
+}
+
+function runOwnerAction(action) {
+  if (!isOwnerAccount()) {
+    showToast("Owner account required");
+    return;
+  }
+
+  applyOwnerDefaults(state.profile);
+  const selected = currentSendingAddress();
+  let status = "Owner action completed";
+
+  if (action === "grant-vault") {
+    state.profile.plan = "vault";
+    state.profile.subscription = {
+      status: "premium",
+      tierId: "vault",
+      tierName: "Vault Owner",
+      premiumUntil: "Owner access",
+      verifiedAt: new Date().toISOString()
+    };
+    seedPlanAddresses("vault");
+    status = "Owner Vault grant applied.";
+  }
+
+  if (action === "verify-payment") {
+    status = "Manual payment verification logged for review.";
+  }
+
+  if (action === "freeze-address") {
+    state.profile.addressColors[selected] = "#ff4d61";
+    state.mailbox.unshift({
+      id: cryptoRandomId(),
+      folder: "inbox",
+      from: `abuse@${mailDomain}`,
+      to: selected,
+      subject: "Owner freeze marker",
+      description: `${selected} is marked for owner review.`,
+      body: "Owner mode marked this address as frozen for abuse or support review. This is a demo control and does not delete mail.",
+      sentAt: new Date().toISOString(),
+      security: "Owner"
+    });
+    status = `Freeze marker applied to ${selected}.`;
+  }
+
+  if (action === "resolve-support") {
+    const nextTicket = state.profile.supportQueue.find((ticket) => ticket.status !== "Resolved");
+    if (nextTicket) {
+      nextTicket.status = "Resolved";
+      status = `${nextTicket.id} resolved.`;
+    } else {
+      status = "No open support tickets left.";
+    }
+  }
+
+  if (action === "export-support") {
+    const openTickets = state.profile.supportQueue.filter((ticket) => ticket.status !== "Resolved").length;
+    state.mailbox.unshift({
+      id: cryptoRandomId(),
+      folder: "inbox",
+      from: `support@${mailDomain}`,
+      to: ownerAddress,
+      subject: "Owner support export",
+      description: `${openTickets} open tickets exported to owner audit.`,
+      body: state.profile.supportQueue.map((ticket) => `${ticket.id}: ${ticket.status} · ${ticket.priority} · ${ticket.subject}`).join("\n"),
+      sentAt: new Date().toISOString(),
+      security: "Owner export"
+    });
+    status = "Support queue exported into the owner inbox.";
+  }
+
+  if (action === "system-mode") {
+    state.profile.ownerMaintenance = !state.profile.ownerMaintenance;
+    status = state.profile.ownerMaintenance ? "Maintenance mode enabled for demo support." : "Maintenance mode disabled.";
+  }
+
+  state.profile.ownerAdminStatus = status;
+  state.profile.ownerAudit.unshift({
+    id: `AUD-${Date.now().toString().slice(-6)}`,
+    action: status,
+    at: new Date().toISOString(),
+    address: selected
+  });
+  persistCurrentMailbox();
+  persistCurrentProfile();
+  render();
+  showToast(status);
 }
 
 function renderAddressFilters() {
@@ -2215,7 +2493,9 @@ function renderMailbox() {
   const messages = getMessagesForFolder();
   const selected = messages.find((message) => message.id === state.selectedId) || messages[0] || null;
   state.selectedId = selected?.id || null;
-  const folderTitle = state.selectedFolder === "sent" ? "Sent" : "Inbox";
+  const folderTitle = isOwnerAccount()
+    ? (state.selectedFolder === "sent" ? "Owner Sent" : "Owner Inbox")
+    : (state.selectedFolder === "sent" ? "Sent" : "Inbox");
   const filterTitle = state.addressFilter === "all" ? "All addresses" : localPart(state.addressFilter);
   els.mailboxTitle.textContent = folderTitle;
   els.mailboxPanelTitle.textContent = state.addressFilter === "all" ? folderTitle : `${folderTitle}: ${filterTitle}`;
@@ -2459,6 +2739,7 @@ function signOut() {
   state.addressFilter = "all";
   state.selectedId = null;
   sessionStorage.removeItem(sessionKey);
+  localStorage.removeItem(ownerSessionKey);
   clearSupabaseSession();
   setAuthMode("login");
   render();
@@ -2466,6 +2747,12 @@ function signOut() {
 }
 
 function setCurrentAccount(address) {
+  const requestedAddress = normalizeEmail(address);
+  if (isOwnerAddress(requestedAddress) && requestedAddress !== ownerAddress && state.accounts[ownerAddress]) {
+    state.accounts[ownerAddress].sendingAddress = requestedAddress;
+    address = ownerAddress;
+  }
+
   state.profile = state.accounts[address] || null;
   state.authenticated = Boolean(state.profile);
   if (state.profile && ensureAccountDefaults(state.profile)) {
@@ -2514,6 +2801,198 @@ function loadAccounts() {
   }
 }
 
+async function ensureOwnerAccount() {
+  let account = state.accounts[ownerAddress];
+  let touchedOwner = false;
+
+  if (!account) {
+    const keys = createDemoKeys("cryptedmail-owner-local-demo-key");
+    account = {
+      address: ownerAddress,
+      role: "owner",
+      plan: "vault",
+      addresses: [...ownerReservedAddresses],
+      sendingAddress: ownerAddress,
+      addressColors: {
+        [ownerAddress]: "#3df58d",
+        [`support@${mailDomain}`]: "#76d8ff",
+        [`abuse@${mailDomain}`]: "#ff6b7d",
+        [`billing@${mailDomain}`]: "#ffd166",
+        [`admin@${mailDomain}`]: "#c999ff"
+      },
+      proof: await hashText(ownerDefaultPassword),
+      publicKeyJwk: keys.publicKeyJwk,
+      privateKeyJwk: keys.privateKeyJwk,
+      createdAt: Date.now(),
+      ownerAccountReady: true,
+      mailbox: makeOwnerMailbox(ownerAddress)
+    };
+    state.accounts[ownerAddress] = account;
+    touchedOwner = true;
+  }
+
+  if (!account.ownerAccountReady) {
+    account.proof = await hashText(ownerDefaultPassword);
+    account.ownerAccountReady = true;
+    touchedOwner = true;
+  }
+
+  touchedOwner = absorbReservedOwnerAccounts(account) || touchedOwner;
+
+  if (applyOwnerDefaults(account) || touchedOwner) {
+    persistAccounts();
+  }
+}
+
+function openOwnerSession(requestedAddress = ownerAddress) {
+  const sendingAddress = ownerAddressFromInput(requestedAddress) || ownerAddress;
+  const account = state.accounts[ownerAddress];
+  if (!account) {
+    return;
+  }
+
+  applyOwnerDefaults(account);
+  account.sendingAddress = sendingAddress;
+  absorbReservedOwnerAccounts(account);
+  persistAccounts();
+  setCurrentAccount(ownerAddress);
+  sessionStorage.setItem(sessionKey, sendingAddress);
+  localStorage.setItem(ownerSessionKey, sendingAddress);
+}
+
+function isOwnerAddress(address) {
+  return ownerReservedAddresses.includes(normalizeEmail(address));
+}
+
+function ownerAddressFromInput(value) {
+  const email = normalizeEmail(value);
+  if (isOwnerAddress(email)) {
+    return email;
+  }
+
+  const handle = normalizeHandle(value);
+  const address = handle ? `${handle}@${mailDomain}` : "";
+  return isOwnerAddress(address) ? address : "";
+}
+
+function isOwnerAccount(account = state.profile) {
+  return Boolean(account && (account.role === "owner" || isOwnerAddress(account.address)));
+}
+
+function applyOwnerDefaults(account) {
+  if (!account) {
+    return false;
+  }
+
+  let changed = false;
+  const ownerAddresses = [...ownerReservedAddresses, ...(Array.isArray(account.addresses) ? account.addresses : [])]
+    .map((address) => normalizeEmail(address))
+    .filter(Boolean);
+  const uniqueOwnerAddresses = Array.from(new Set(ownerAddresses));
+
+  if (account.role !== "owner") {
+    account.role = "owner";
+    changed = true;
+  }
+  if (account.plan !== "vault") {
+    account.plan = "vault";
+    changed = true;
+  }
+  if (account.storageLimit !== "1TB") {
+    account.storageLimit = "1TB";
+    changed = true;
+  }
+  if (!Array.isArray(account.addresses) || account.addresses.join("|") !== uniqueOwnerAddresses.join("|")) {
+    account.addresses = uniqueOwnerAddresses;
+    changed = true;
+  }
+  if (!account.sendingAddress || !account.addresses.includes(account.sendingAddress)) {
+    account.sendingAddress = ownerAddress;
+    changed = true;
+  }
+  if (!account.addressColors || typeof account.addressColors !== "object") {
+    account.addressColors = {};
+    changed = true;
+  }
+
+  ownerReservedAddresses.forEach((address, index) => {
+    const colors = ["#3df58d", "#76d8ff", "#ff6b7d", "#ffd166", "#c999ff"];
+    if (!account.addressColors[address]) {
+      account.addressColors[address] = colors[index] || "#3df58d";
+      changed = true;
+    }
+  });
+
+  if (!Array.isArray(account.supportQueue)) {
+    account.supportQueue = defaultSupportQueue();
+    changed = true;
+  }
+  if (!Array.isArray(account.ownerAudit)) {
+    account.ownerAudit = [
+      {
+        id: "AUD-100",
+        action: "Owner account created",
+        at: new Date().toISOString()
+      }
+    ];
+    changed = true;
+  }
+  if (!account.ownerAdminStatus) {
+    account.ownerAdminStatus = "Owner controls ready.";
+    changed = true;
+  }
+  if (!account.subscription || account.subscription.tierId !== "vault") {
+    account.subscription = {
+      status: "premium",
+      tierId: "vault",
+      tierName: "Vault Owner",
+      premiumUntil: "Owner access",
+      verifiedAt: new Date().toISOString()
+    };
+    changed = true;
+  }
+
+  return changed;
+}
+
+function absorbReservedOwnerAccounts(ownerAccount) {
+  if (!ownerAccount) {
+    return false;
+  }
+
+  let changed = false;
+  ownerReservedAddresses.forEach((reservedAddress) => {
+    if (reservedAddress === ownerAddress) {
+      return;
+    }
+
+    const separateAccount = state.accounts[reservedAddress];
+    if (!separateAccount || separateAccount === ownerAccount) {
+      return;
+    }
+
+    if (Array.isArray(separateAccount.mailbox) && separateAccount.mailbox.length) {
+      ownerAccount.mailbox = [
+        ...(Array.isArray(ownerAccount.mailbox) ? ownerAccount.mailbox : []),
+        ...separateAccount.mailbox.map((message) => ({
+          ...message,
+          id: message.id || cryptoRandomId(),
+          security: message.security || "Imported support mailbox"
+        }))
+      ];
+    }
+
+    if (Array.isArray(separateAccount.addresses)) {
+      ownerAccount.addresses = Array.from(new Set([...(ownerAccount.addresses || []), ...separateAccount.addresses]));
+    }
+
+    delete state.accounts[reservedAddress];
+    changed = true;
+  });
+
+  return changed;
+}
+
 function persistAccounts() {
   localStorage.setItem(accountsKey, JSON.stringify(state.accounts));
 }
@@ -2536,6 +3015,10 @@ function persistCurrentProfile() {
 
 function ensureAccountDefaults(account) {
   let changed = false;
+
+  if (isOwnerAccount(account)) {
+    changed = applyOwnerDefaults(account) || changed;
+  }
 
   if (!account.plan) {
     account.plan = "starter";
@@ -2646,6 +3129,63 @@ function makeStarterMailbox(address) {
       body: "Use Compose to send standard mail or turn on encryption. When you are done with this address, deactivate instantly with no questions. Encrypted blocks can only be opened by the sender account or the intended cryptedmail recipient account.",
       sentAt: new Date().toISOString(),
       security: "Encrypted-ready"
+    }
+  ];
+}
+
+function makeOwnerMailbox(address) {
+  return [
+    {
+      id: cryptoRandomId(),
+      folder: "inbox",
+      from: `owner-system@${mailDomain}`,
+      to: address,
+      subject: "Owner command center is ready",
+      description: "Support, payment review, Vault controls, and admin routing are unlocked.",
+      body: "This owner account controls the demo support queue, reserved support addresses, manual premium review, abuse freezing, and Vault admin tools. Normal users cannot see these controls.",
+      sentAt: new Date().toISOString(),
+      security: "Owner"
+    },
+    {
+      id: cryptoRandomId(),
+      folder: "inbox",
+      from: `support@${mailDomain}`,
+      to: address,
+      subject: "Support inbox setup",
+      description: "support, abuse, billing, and admin addresses are reserved for the owner.",
+      body: "Use the top-right address dropdown to send from support@cryptedmail.com, abuse@cryptedmail.com, billing@cryptedmail.com, admin@cryptedmail.com, or owner@cryptedmail.com.",
+      sentAt: new Date().toISOString(),
+      security: "Support"
+    },
+    ...makePlanMailbox({ address, plan: "vault" })
+  ];
+}
+
+function defaultSupportQueue() {
+  return [
+    {
+      id: "SUP-1001",
+      from: "newuser@example.com",
+      subject: "Wallet payment is pending",
+      priority: "High",
+      status: "Open",
+      detail: "User connected a wallet but refreshed before premium unlocked."
+    },
+    {
+      id: "SUP-1002",
+      from: "creator@example.com",
+      subject: "Need more disposable addresses",
+      priority: "Medium",
+      status: "Open",
+      detail: "Creator wants Vault for brand, shop, collab, and fan mail identities."
+    },
+    {
+      id: "SUP-1003",
+      from: "abuse-report@example.com",
+      subject: "Possible phishing alias",
+      priority: "Critical",
+      status: "Open",
+      detail: "Review and freeze an exposed or abusive disposable address."
     }
   ];
 }
@@ -2875,6 +3415,9 @@ function planAddressLimit(plan) {
 }
 
 function planToolSummary(plan, count, limit) {
+  if (isOwnerAccount()) {
+    return `Owner active: ${count} reserved/admin addresses, 1TB storage, support queue, and platform controls.`;
+  }
   if (plan === "vault") {
     return `Vault active: ${count} addresses. Type the first part and click Add.`;
   }
@@ -2885,9 +3428,21 @@ function planToolSummary(plan, count, limit) {
 }
 
 function planToolPerks(plan) {
+  if (isOwnerAccount()) {
+    return [
+      { title: "Owner role", detail: "Reserved owner, support, abuse, billing, and admin addresses." },
+      { title: "Support queue", detail: "Review, resolve, and export demo support tickets from the mailbox." },
+      { title: "Manual payment review", detail: "Log wallet/payment checks before premium unlock support." },
+      { title: "Abuse freeze", detail: "Mark a selected address for owner-only abuse review." },
+      { title: "1TB storage", detail: "Owner gets the full Vault storage and unlimited address layer." },
+      { title: "System switches", detail: "Toggle demo maintenance mode and owner audit events." }
+    ];
+  }
+
   if (plan === "vault") {
     return [
       { title: "Unlimited addresses", detail: "Keep separate mailboxes for every identity, project, or family member." },
+      { title: "1TB storage", detail: "Archive encrypted mail, imports, attachments, and long-term identity history." },
       { title: "Admin style tools", detail: "Change the Vault mailbox theme and boost the paid dashboard glow." },
       { title: "Color-coded identities", detail: "Pick any sending address and mark it with its own color." },
       { title: "Secure import", detail: "Demo-ready import lane for moving older email into encrypted storage." },
@@ -2898,14 +3453,16 @@ function planToolPerks(plan) {
   if (plan === "plus") {
     return [
       { title: "10 addresses", detail: "Create multiple active cryptedmail.com aliases from this mailbox." },
+      { title: "100GB storage", detail: "More room for encrypted message blocks, attachments, and sent history." },
       { title: "Alias rotation", detail: "Switch the sender address before composing a message." },
       { title: "Tracker blocking", detail: "Paid mailbox mode shows safer remote-image and tracking protection." },
-      { title: "Bigger storage", detail: "More room for encrypted message blocks and sent history." }
+      { title: "Priority routing", detail: "Keep paid inboxes cleaner with stronger address separation." }
     ];
   }
 
   return [
     { title: "1 address", detail: "Free users get one disposable cryptedmail.com mailbox." },
+    { title: "500MB storage", detail: "Enough encrypted room for a starter mailbox and basic private signups." },
     { title: "Receiver encryption", detail: "Encrypted blocks still open only for sender and recipient accounts." },
     { title: "Instant deactivate", detail: "Burn the whole local account anytime with no questions." },
     { title: "Upgrade path", detail: "Secure Plus adds 10 aliases; Vault adds unlimited mailboxes." }
@@ -2922,6 +3479,7 @@ function planDetails(plan) {
       summary: "Upgrade to faster disposable addresses with blockchain-backed plan access.",
       perks: [
         "10 active disposable @cryptedmail.com addresses",
+        "100GB encrypted storage",
         "One-click shutdown for every address",
         "Receiver-only encrypted messages",
         "Alias rotation for signups and risky sites",
@@ -2937,6 +3495,7 @@ function planDetails(plan) {
       summary: "Full disposable email vault for power users, teams, and families.",
       perks: [
         "Unlimited disposable mailboxes",
+        "1TB encrypted storage",
         "Vault admin box inside the mailbox",
         "Mailbox style switching",
         "Color-coded identities",
@@ -2953,6 +3512,7 @@ function planDetails(plan) {
       summary: "Free disposable encrypted email for everyday private signups.",
       perks: [
         "1 disposable @cryptedmail.com address",
+        "500MB encrypted storage",
         "Instant deactivate",
         "Receiver-only encrypted messages",
         "Encrypted reader"
