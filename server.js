@@ -425,22 +425,22 @@ function mergeAdminConfig(current, incoming) {
 async function loadConfig() {
   const config = JSON.parse(await readFile(configPath, "utf8"));
   if (process.env.CRYPTEDMAIL_TEST_MODE) {
-    config.testMode = process.env.CRYPTEDMAIL_TEST_MODE === "true";
+    config.testMode = process.env.CRYPTEDMAIL_TEST_MODE.trim() === "true";
   }
   if (process.env.CRYPTEDMAIL_RECEIVER_ADDRESS) {
-    config.receivingAddress = process.env.CRYPTEDMAIL_RECEIVER_ADDRESS;
+    config.receivingAddress = process.env.CRYPTEDMAIL_RECEIVER_ADDRESS.trim();
   }
   if (process.env.WALLETCONNECT_PROJECT_ID) {
-    config.walletConnectProjectId = process.env.WALLETCONNECT_PROJECT_ID;
+    config.walletConnectProjectId = process.env.WALLETCONNECT_PROJECT_ID.trim();
   }
   if (process.env.CRYPTEDMAIL_NETWORK) {
-    config.activeNetwork = process.env.CRYPTEDMAIL_NETWORK;
+    config.activeNetwork = process.env.CRYPTEDMAIL_NETWORK.trim();
   }
   if (process.env.BASE_RPC_URL && config.networks?.base) {
-    config.networks.base.rpcUrl = process.env.BASE_RPC_URL;
+    config.networks.base.rpcUrl = process.env.BASE_RPC_URL.trim();
   }
   if (process.env.POLYGON_RPC_URL && config.networks?.polygon) {
-    config.networks.polygon.rpcUrl = process.env.POLYGON_RPC_URL;
+    config.networks.polygon.rpcUrl = process.env.POLYGON_RPC_URL.trim();
   }
   return config;
 }
@@ -627,8 +627,8 @@ function publicConfig(config) {
     walletConnectConfigured: Boolean(config.walletConnectProjectId && !config.walletConnectProjectId.includes("REPLACE")),
     supabase: {
       configured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
-      url: process.env.SUPABASE_URL || "",
-      anonKey: process.env.SUPABASE_ANON_KEY || ""
+      url: envValue("SUPABASE_URL"),
+      anonKey: envValue("SUPABASE_ANON_KEY")
     },
     premiumAccessDays: config.premiumAccessDays,
     tiers: config.tiers
@@ -644,8 +644,12 @@ function hasSupabase() {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
+function envValue(name) {
+  return String(process.env[name] || "").trim();
+}
+
 async function supabaseSelect(table, query) {
-  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${table}?${query}`, {
+  const response = await fetch(`${envValue("SUPABASE_URL")}/rest/v1/${table}?${query}`, {
     headers: supabaseHeaders()
   });
   if (!response.ok) {
@@ -660,7 +664,7 @@ async function supabaseSelectOne(table, query) {
 }
 
 async function supabaseUpsert(table, row, onConflict) {
-  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${table}?on_conflict=${onConflict}`, {
+  const response = await fetch(`${envValue("SUPABASE_URL")}/rest/v1/${table}?on_conflict=${onConflict}`, {
     method: "POST",
     headers: {
       ...supabaseHeaders(),
@@ -676,7 +680,7 @@ async function supabaseUpsert(table, row, onConflict) {
 }
 
 async function supabasePatch(table, query, body) {
-  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${table}?${query}`, {
+  const response = await fetch(`${envValue("SUPABASE_URL")}/rest/v1/${table}?${query}`, {
     method: "PATCH",
     headers: {
       ...supabaseHeaders(),
@@ -692,8 +696,8 @@ async function supabasePatch(table, query, body) {
 
 function supabaseHeaders() {
   return {
-    apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+    apikey: envValue("SUPABASE_SERVICE_ROLE_KEY"),
+    authorization: `Bearer ${envValue("SUPABASE_SERVICE_ROLE_KEY")}`
   };
 }
 
@@ -762,9 +766,9 @@ async function verifySupabaseJwt(token) {
     throw apiError(500, "supabase_auth_not_configured", "Supabase auth environment variables are missing");
   }
 
-  const response = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+  const response = await fetch(`${envValue("SUPABASE_URL")}/auth/v1/user`, {
     headers: {
-      apikey: process.env.SUPABASE_ANON_KEY,
+      apikey: envValue("SUPABASE_ANON_KEY"),
       authorization: `Bearer ${token}`
     }
   });
