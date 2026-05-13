@@ -1405,7 +1405,7 @@ async function walletConnectProvider() {
     projectId: config.walletConnectProjectId,
     chains: [config.network.chainId],
     optionalChains: Object.values(config.networks || {}).map((network) => network.chainId),
-    showQrModal: false,
+    showQrModal: true,
     rpcMap: Object.fromEntries(Object.values(config.networks || {}).map((network) => [network.chainId, network.rpcUrl])),
     metadata: {
       name: "cryptedmail",
@@ -1414,11 +1414,33 @@ async function walletConnectProvider() {
       icons: []
     }
   });
+  let uriShown = false;
+  const uriTimer = window.setTimeout(() => {
+    if (!uriShown) {
+      showWalletConnectAllowlistHelp();
+    }
+  }, 5000);
   provider.on?.("display_uri", (uri) => {
+    uriShown = true;
+    window.clearTimeout(uriTimer);
     renderWalletConnectUri(uri);
   });
-  await provider.enable();
+  try {
+    await provider.enable();
+  } finally {
+    window.clearTimeout(uriTimer);
+  }
   return provider;
+}
+
+function showWalletConnectAllowlistHelp() {
+  els.walletHelpBox.hidden = false;
+  els.walletHelpTitle.textContent = "WalletConnect QR is blocked";
+  els.walletHelpText.textContent = `Add ${window.location.hostname} to the WalletConnect Cloud allowlist for this Project ID, wait about 15 minutes, then hard refresh. Use test wallet can keep setup moving while test mode is on.`;
+  els.walletInstallLink.hidden = false;
+  els.walletInstallLink.href = "https://cloud.walletconnect.com/";
+  els.walletInstallLink.textContent = "Open WalletConnect Cloud";
+  setDappStatus("WalletConnect did not return a QR. Check the project domain allowlist.", "Allowlist");
 }
 
 async function renderWalletConnectUri(uri) {
