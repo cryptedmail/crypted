@@ -3,7 +3,8 @@ const mailDomain = "cryptedmail.com";
 const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
 const supabaseSessionKey = "cryptedmail-supabase-session-v1";
-const dappApiBase = window.location.protocol === "file:" ? "http://127.0.0.1:8787" : "";
+const deployedApiBase = "https://crypted-i9mu.vercel.app";
+const dappApiBase = window.location.protocol === "file:" ? deployedApiBase : "";
 
 const state = {
   authMode: "signup",
