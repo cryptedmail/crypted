@@ -2898,7 +2898,7 @@ function planDetails(plan) {
     plus: {
       id: "plus",
       name: "Secure Plus",
-      price: "$4.99",
+      price: "$5",
       cycle: "per month",
       summary: "Upgrade to faster disposable addresses with blockchain-backed plan access.",
       perks: [
@@ -2913,7 +2913,7 @@ function planDetails(plan) {
     vault: {
       id: "vault",
       name: "Vault",
-      price: "$9.99",
+      price: "$10",
       cycle: "per month",
       summary: "Full disposable email vault for power users, teams, and families.",
       perks: [

@@ -8,11 +8,11 @@
   "tiers": {
     "plus": {
       "name": "Secure Plus",
-      "priceUsdc": "4.99"
+      "priceUsdc": "5"
     },
     "vault": {
       "name": "Vault",
-      "priceUsdc": "9.99"
+      "priceUsdc": "10"
     }
   },
   "membershipTokens": {
