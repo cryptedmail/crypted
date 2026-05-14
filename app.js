@@ -1,5 +1,5 @@
 const brandName = "cryptedmail";
-const appVersion = "launch-owner-20260513";
+const appVersion = "visual-polish-20260514";
 const mailDomain = "cryptedmail.com";
 const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
@@ -155,6 +155,7 @@ const els = {
   bodyInput: document.querySelector("#bodyInput"),
   encryptToggle: document.querySelector("#encryptToggle"),
   composeForm: document.querySelector("#composeForm"),
+  composeSecurityRibbon: document.querySelector("#composeSecurityRibbon"),
   encryptedOutput: document.querySelector("#encryptedOutput"),
   copyEncryptedButton: document.querySelector("#copyEncryptedButton"),
   readerPaste: document.querySelector("#readerPaste"),
@@ -793,10 +794,11 @@ async function handleComposeSubmit(event) {
   els.encryptedOutput.value = deliveryBlock;
   els.readerPaste.value = deliveryBlock;
   renderMailbox();
+  playSendPulse(wantsEncryption);
   if (encryptionRequested && !canEncrypt) {
     showToast("Sent standard copy; encryption needs a cryptedmail recipient account");
   } else {
-    showToast(wantsEncryption ? "Encrypted for sender and receiver only" : "Standard mail copy ready");
+    showToast(wantsEncryption ? "Sealed and sent. Receiver-only decrypt is ready." : "Sent. Standard readable copy is ready.");
   }
 }
 
@@ -3587,4 +3589,28 @@ function showToast(message) {
   state.toastTimer = window.setTimeout(() => {
     els.toast.classList.remove("is-visible");
   }, 2200);
+}
+
+function playSendPulse(encrypted = false) {
+  document.body.classList.remove("is-sending", "is-secure-send");
+  void document.body.offsetWidth;
+  document.body.classList.toggle("is-secure-send", encrypted);
+  document.body.classList.add("is-sending");
+  els.composePanel?.classList.add("sent-pop");
+  if (els.composeSecurityRibbon) {
+    const ribbonTitle = els.composeSecurityRibbon.querySelector("strong");
+    const ribbonText = els.composeSecurityRibbon.querySelector("span");
+    if (ribbonTitle) {
+      ribbonTitle.textContent = encrypted ? "Sealed delivery launched" : "Readable delivery launched";
+    }
+    if (ribbonText) {
+      ribbonText.textContent = encrypted
+        ? "The encrypted block is now locked to sender plus receiver."
+        : "Encryption is off for this send; the copy stays readable.";
+    }
+  }
+  window.setTimeout(() => {
+    document.body.classList.remove("is-sending", "is-secure-send");
+    els.composePanel?.classList.remove("sent-pop");
+  }, 1500);
 }

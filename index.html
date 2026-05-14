@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>cryptedmail</title>
-    <link rel="stylesheet" href="styles.css?v=launch-owner-20260513">
+    <link rel="stylesheet" href="styles.css?v=visual-polish-20260514">
   </head>
   <body class="is-logged-out">
     <div class="app-shell">
       <header class="site-header">
         <a class="brand" id="refreshBrand" href="index.html" aria-label="Open cryptedmail mailbox home">
           <span class="brand-mark" aria-hidden="true">
-            <img class="brand-logo-img" src="assets/cryptedmail-owl-logo.png?v=launch-owner-20260513" alt="">
+            <img class="brand-logo-img" src="assets/cryptedmail-owl-logo.png?v=visual-polish-20260514" alt="">
             <svg class="crypted-logo" viewBox="0 0 128 128" focusable="false" shape-rendering="geometricPrecision">
               <path class="logo-envelope" d="M17 75h94v34c0 5-4 9-9 9H26c-5 0-9-4-9-9V75Z"></path>
               <path class="logo-envelope-fold" d="M18 77 64 104l46-27M18 116l32-28M110 116 78 88"></path>
@@ -73,6 +73,13 @@
             <div class="chain-strip">
               <strong>Blockchain layer</strong>
               <span>Account ownership, plan access, public keys, and deactivate receipts are verifiable. Email content stays private and off-chain.</span>
+            </div>
+
+            <div class="hero-proof-strip" aria-label="cryptedmail quick proof points">
+              <span><strong>2-sec</strong> disposable burn</span>
+              <span><strong>Receiver</strong> locked decrypt</span>
+              <span><strong>1TB</strong> Vault storage</span>
+              <span><strong>USDC</strong> verified upgrades</span>
             </div>
 
             <div class="hero-identity-card">
@@ -725,6 +732,11 @@
                     </span>
                   </label>
 
+                  <div class="compose-security-ribbon" id="composeSecurityRibbon" aria-live="polite">
+                    <strong>Sealed route ready</strong>
+                    <span>When encryption is on, the readable copy belongs only to the sender and receiving cryptedmail account.</span>
+                  </div>
+
                   <button class="primary-button send-button" type="submit">Send</button>
                 </form>
 
@@ -1343,6 +1355,6 @@
         });
       }());
     </script>
-    <script src="app.js?v=launch-owner-20260513"></script>
+    <script src="app.js?v=visual-polish-20260514"></script>
   </body>
 </html>
