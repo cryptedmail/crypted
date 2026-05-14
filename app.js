@@ -1,5 +1,5 @@
 const brandName = "cryptedmail";
-const appVersion = "owner-command-20260514";
+const appVersion = "mail-ai-storage-20260514";
 const mailDomain = "cryptedmail.com";
 const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
@@ -117,6 +117,9 @@ const els = {
   addressFilterList: document.querySelector("#addressFilterList"),
   planBadge: document.querySelector("#planBadge"),
   planToolsSummary: document.querySelector("#planToolsSummary"),
+  storageMeterLabel: document.querySelector("#storageMeterLabel"),
+  storageMeterText: document.querySelector("#storageMeterText"),
+  storageMeterFill: document.querySelector("#storageMeterFill"),
   aliasHandleInput: document.querySelector("#aliasHandleInput"),
   generatePlanAddress: document.querySelector("#generatePlanAddress"),
   vaultTools: document.querySelector("#vaultTools"),
@@ -149,6 +152,11 @@ const els = {
   messageList: document.querySelector("#messageList"),
   messagePreview: document.querySelector("#messagePreview"),
   messageStatus: document.querySelector("#messageStatus"),
+  previewActions: document.querySelector("#previewActions"),
+  previewKeepButton: document.querySelector("#previewKeepButton"),
+  previewAiSummaryButton: document.querySelector("#previewAiSummaryButton"),
+  previewImageAiButton: document.querySelector("#previewImageAiButton"),
+  previewDeleteButton: document.querySelector("#previewDeleteButton"),
   composePanel: document.querySelector("#composePanel"),
   fromSelect: document.querySelector("#fromSelect"),
   fromInput: document.querySelector("#fromInput"),
@@ -156,6 +164,12 @@ const els = {
   subjectInput: document.querySelector("#subjectInput"),
   descriptionInput: document.querySelector("#descriptionInput"),
   bodyInput: document.querySelector("#bodyInput"),
+  aiSubjectButton: document.querySelector("#aiSubjectButton"),
+  aiPolishButton: document.querySelector("#aiPolishButton"),
+  aiPrivacyButton: document.querySelector("#aiPrivacyButton"),
+  attachmentInput: document.querySelector("#attachmentInput"),
+  attachmentPreviewList: document.querySelector("#attachmentPreviewList"),
+  keepMessageToggle: document.querySelector("#keepMessageToggle"),
   encryptToggle: document.querySelector("#encryptToggle"),
   composeForm: document.querySelector("#composeForm"),
   composeSecurityRibbon: document.querySelector("#composeSecurityRibbon"),
@@ -331,6 +345,14 @@ function bindEvents() {
   });
 
   els.generatePlanAddress.addEventListener("click", addPlanAddress);
+  els.aiSubjectButton.addEventListener("click", suggestSubject);
+  els.aiPolishButton.addEventListener("click", polishDraft);
+  els.aiPrivacyButton.addEventListener("click", privacyScanDraft);
+  els.attachmentInput.addEventListener("change", renderAttachmentPreviews);
+  els.previewKeepButton.addEventListener("click", toggleSelectedMessageKeep);
+  els.previewAiSummaryButton.addEventListener("click", summarizeSelectedMessage);
+  els.previewImageAiButton.addEventListener("click", describeSelectedMessageImages);
+  els.previewDeleteButton.addEventListener("click", deleteSelectedMessage);
   els.addressColorInput.addEventListener("input", setVaultAddressColor);
   els.vaultThemeSelect.addEventListener("change", setVaultTheme);
   els.vaultVipButton.addEventListener("click", () => runVaultAdminAction("vip"));
@@ -756,6 +778,117 @@ async function continuePendingUpgradeAfterAuth() {
   return true;
 }
 
+async function readSelectedAttachments() {
+  const files = Array.from(els.attachmentInput.files || []).slice(0, 4);
+  const attachments = [];
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      showToast("Pictures only for this demo attachment lane");
+      continue;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      showToast(`${file.name} is over the 3MB demo limit`);
+      continue;
+    }
+
+    const dataUrl = await readFileAsDataUrl(file);
+    attachments.push({
+      id: cryptoRandomId(),
+      name: cleanText(file.name) || "image",
+      type: file.type,
+      size: file.size,
+      dataUrl,
+      aiNote: describeAttachment({ name: file.name, type: file.type, size: file.size })
+    });
+  }
+
+  return attachments;
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result || "")));
+    reader.addEventListener("error", () => reject(reader.error || new Error("Could not read image")));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderAttachmentPreviews() {
+  els.attachmentPreviewList.innerHTML = "";
+  const files = Array.from(els.attachmentInput.files || []).slice(0, 4);
+  if (!files.length) {
+    return;
+  }
+
+  files.forEach((file) => {
+    const item = document.createElement("div");
+    const img = document.createElement("img");
+    img.alt = file.name;
+    img.src = URL.createObjectURL(file);
+    img.addEventListener("load", () => URL.revokeObjectURL(img.src), { once: true });
+    const meta = document.createElement("span");
+    meta.textContent = `${file.name} - ${formatBytes(file.size)}`;
+    item.append(img, meta);
+    els.attachmentPreviewList.append(item);
+  });
+}
+
+function clearComposeAfterSend() {
+  els.attachmentInput.value = "";
+  els.attachmentPreviewList.innerHTML = "";
+}
+
+function suggestSubject() {
+  const body = cleanText(els.bodyInput.value);
+  const to = normalizeEmail(els.toInput.value);
+  const subject = body
+    ? body.split(/[.!?]/)[0].slice(0, 58)
+    : to ? `Secure note for ${localPart(to)}` : "Secure cryptedmail update";
+  els.subjectInput.value = subject || "Secure cryptedmail update";
+  showToast("AI subject drafted");
+}
+
+function polishDraft() {
+  const body = els.bodyInput.value.trim();
+  if (!body) {
+    els.bodyInput.value = "Hey,\n\nSending this through cryptedmail so the message stays organized and easy to burn later if needed.\n\n";
+    showToast("AI starter draft added");
+    return;
+  }
+
+  const polished = body
+    .replace(/\s+/g, " ")
+    .replace(/^./, (letter) => letter.toUpperCase());
+  els.bodyInput.value = `${polished}\n\nSent from cryptedmail.`;
+  showToast("AI polished the draft");
+}
+
+function privacyScanDraft() {
+  const text = `${els.subjectInput.value} ${els.descriptionInput.value} ${els.bodyInput.value}`;
+  const risks = [];
+  if (/\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/.test(text)) {
+    risks.push("possible SSN");
+  }
+  if (/\b(?:\d[ -]*?){13,16}\b/.test(text)) {
+    risks.push("possible card number");
+  }
+  if (/seed phrase|recovery phrase|private key/i.test(text)) {
+    risks.push("wallet secret wording");
+  }
+  if (risks.length) {
+    els.composeSecurityRibbon.querySelector("strong").textContent = "AI privacy warning";
+    els.composeSecurityRibbon.querySelector("span").textContent = `Check before sending: ${risks.join(", ")}. cryptedmail never needs secrets.`;
+    showToast("AI privacy scan found risk");
+    return;
+  }
+
+  els.composeSecurityRibbon.querySelector("strong").textContent = "AI privacy scan clean";
+  els.composeSecurityRibbon.querySelector("span").textContent = "No obvious secrets found. Encryption still depends on the receiver being a cryptedmail account.";
+  showToast("AI privacy scan clean");
+}
+
 async function handleComposeSubmit(event) {
   event.preventDefault();
 
@@ -774,6 +907,8 @@ async function handleComposeSubmit(event) {
   const recipientAccount = findAccountByAddress(to);
   const canEncrypt = to.endsWith(`@${mailDomain}`) && Boolean(recipientAccount);
   const wantsEncryption = encryptionRequested && canEncrypt;
+  const attachments = await readSelectedAttachments();
+  const bodyText = els.bodyInput.value.trim();
 
   const message = {
     id: cryptoRandomId(),
@@ -782,13 +917,19 @@ async function handleComposeSubmit(event) {
     to,
     subject: cleanText(els.subjectInput.value) || "(no subject)",
     description: cleanText(els.descriptionInput.value) || (wantsEncryption ? "Receiver-key encrypted mail" : "Standard mail"),
-    body: els.bodyInput.value.trim(),
+    body: bodyText,
+    attachments,
+    keep: els.keepMessageToggle.checked,
     sentAt: new Date().toISOString(),
     security: wantsEncryption ? "Encrypted" : "Standard"
   };
 
-  if (!message.body) {
-    showToast("Type a message first");
+  if (!message.body && !message.attachments.length) {
+    showToast("Type a message or attach a picture first");
+    return;
+  }
+  if (message.keep && mailboxStorageUsed(state.profile) + JSON.stringify(message).length > planStorageLimitBytes(state.profile.plan)) {
+    showToast("Storage limit reached. Upgrade or turn off keep copy.");
     return;
   }
 
@@ -797,7 +938,9 @@ async function handleComposeSubmit(event) {
     : wrapPlainBlock(message);
 
   message.encrypted = deliveryBlock;
-  state.mailbox.unshift(message);
+  if (message.keep) {
+    state.mailbox.unshift(message);
+  }
   deliverLocalCopy(message, deliveryBlock, recipientAccount);
   window.posthog?.capture(wantsEncryption ? 'email_encrypted_sent' : 'email_sent', {
     encrypted: wantsEncryption,
@@ -806,11 +949,12 @@ async function handleComposeSubmit(event) {
     recipientIsLocal: Boolean(recipientAccount)
   });
   state.selectedFolder = "sent";
-  state.selectedId = message.id;
+  state.selectedId = message.keep ? message.id : state.mailbox[0]?.id || null;
   persistCurrentMailbox();
 
   els.encryptedOutput.value = deliveryBlock;
   els.readerPaste.value = deliveryBlock;
+  clearComposeAfterSend();
   renderMailbox();
   playSendPulse(wantsEncryption);
   if (encryptionRequested && !canEncrypt) {
@@ -986,6 +1130,8 @@ function buildMessagePayload(message, security) {
     subject: message.subject,
     description: message.description,
     body: message.body,
+    attachments: message.attachments || [],
+    keep: message.keep !== false,
     sentAt: message.sentAt,
     security
   };
@@ -2059,6 +2205,7 @@ function renderPlanTools() {
 
   els.planBadge.textContent = isOwnerAccount() ? "Owner" : planLabel(plan);
   els.planToolsSummary.textContent = planToolSummary(plan, addresses.length, limit);
+  renderStorageMeter(plan);
   els.generatePlanAddress.textContent = plan === "starter" ? "Unlock & add" : canAddMore ? "Add" : "Full";
   els.generatePlanAddress.disabled = plan !== "starter" && !canAddMore;
   els.vaultTools.hidden = plan !== "vault";
@@ -2643,7 +2790,9 @@ function renderMailbox() {
     const route = document.createElement("span");
     route.textContent = state.selectedFolder === "sent" ? `To ${message.to}` : `From ${message.from}`;
     const description = document.createElement("span");
-    description.textContent = `${message.security || "Standard"} | ${message.description || "Email"}`;
+    const pictureLabel = (message.attachments || []).length ? ` | ${(message.attachments || []).length} pic` : "";
+    const keepLabel = message.keep === false ? " | temporary" : "";
+    description.textContent = `${message.security || "Standard"} | ${message.description || "Email"}${pictureLabel}${keepLabel}`;
 
     card.append(subject, route, description);
     card.addEventListener("click", () => {
@@ -2667,6 +2816,7 @@ function renderPreview(message) {
 
   if (!message) {
     els.messageStatus.textContent = "Empty";
+    els.previewActions.hidden = true;
     const strong = document.createElement("strong");
     strong.textContent = "No message selected.";
     const p = document.createElement("p");
@@ -2676,15 +2826,18 @@ function renderPreview(message) {
   }
 
   els.messageStatus.textContent = message.security || "Standard";
+  els.previewActions.hidden = false;
+  els.previewKeepButton.textContent = message.keep === false ? "Keep email" : "Kept saved";
   const subject = document.createElement("strong");
   subject.textContent = message.subject;
   const meta = document.createElement("p");
-  meta.textContent = `From ${message.from} to ${message.to}`;
+  meta.textContent = `From ${message.from} to ${message.to} - ${message.keep === false ? "temporary" : "kept"}`;
   const description = document.createElement("p");
   description.textContent = message.description || "";
   const body = document.createElement("p");
   body.textContent = message.body;
   els.messagePreview.append(subject, meta, description, body);
+  renderAttachmentGallery(els.messagePreview, message.attachments || []);
 }
 
 function renderReaderMessage(message) {
@@ -2698,6 +2851,91 @@ function renderReaderMessage(message) {
   const body = document.createElement("p");
   body.textContent = message.body || "";
   els.readerOutput.append(subject, meta, description, body);
+  renderAttachmentGallery(els.readerOutput, message.attachments || []);
+}
+
+function renderAttachmentGallery(container, attachments = []) {
+  if (!attachments.length) {
+    return;
+  }
+
+  const gallery = document.createElement("div");
+  gallery.className = "attachment-gallery";
+  attachments.forEach((attachment) => {
+    const figure = document.createElement("figure");
+    const img = document.createElement("img");
+    img.src = attachment.dataUrl;
+    img.alt = attachment.aiNote || attachment.name || "cryptedmail attachment";
+    const caption = document.createElement("figcaption");
+    caption.textContent = `${attachment.name || "Image"} - ${formatBytes(attachment.size || 0)}. ${attachment.aiNote || "Image preview ready."}`;
+    figure.append(img, caption);
+    gallery.append(figure);
+  });
+  container.append(gallery);
+}
+
+function selectedMessage() {
+  if (!state.selectedId) {
+    return null;
+  }
+  return state.mailbox.find((message) => message.id === state.selectedId) || null;
+}
+
+function toggleSelectedMessageKeep() {
+  const message = selectedMessage();
+  if (!message) {
+    showToast("Open an email first");
+    return;
+  }
+  message.keep = message.keep === false;
+  persistCurrentMailbox();
+  renderMailbox();
+  showToast(message.keep === false ? "Email marked temporary" : "Email kept in mailbox");
+}
+
+function deleteSelectedMessage() {
+  const message = selectedMessage();
+  if (!message) {
+    showToast("Open an email first");
+    return;
+  }
+  state.mailbox = state.mailbox.filter((item) => item.id !== message.id);
+  state.selectedId = getMessagesForFolder()[0]?.id || state.mailbox[0]?.id || null;
+  persistCurrentMailbox();
+  renderMailbox();
+  showToast("Email deleted from this mailbox");
+}
+
+function summarizeSelectedMessage() {
+  const message = selectedMessage();
+  if (!message) {
+    showToast("Open an email first");
+    return;
+  }
+  const summary = aiMessageSummary(message);
+  const p = document.createElement("p");
+  p.className = "ai-inline-note";
+  p.textContent = summary;
+  els.messagePreview.append(p);
+  showToast("AI summary added");
+}
+
+function describeSelectedMessageImages() {
+  const message = selectedMessage();
+  if (!message) {
+    showToast("Open an email first");
+    return;
+  }
+  const attachments = message.attachments || [];
+  if (!attachments.length) {
+    showToast("No pictures in this email");
+    return;
+  }
+  const p = document.createElement("p");
+  p.className = "ai-inline-note";
+  p.textContent = attachments.map((attachment) => attachment.aiNote || describeAttachment(attachment)).join(" ");
+  els.messagePreview.append(p);
+  showToast("AI image notes added");
 }
 
 function addInboxCopy(message) {
@@ -2725,6 +2963,8 @@ function addInboxCopy(message) {
     subject: message.subject || "(no subject)",
     description: message.description || "Opened from reader",
     body: message.body || "",
+    attachments: message.attachments || [],
+    keep: true,
     sentAt: message.sentAt || new Date().toISOString(),
     security: message.security || "Standard"
   };
@@ -2746,7 +2986,9 @@ function deliverLocalCopy(message, encryptedBlock, recipientAccount) {
     ...message,
     id: cryptoRandomId(),
     folder: "inbox",
-    encrypted: encryptedBlock
+    encrypted: encryptedBlock,
+    attachments: message.attachments || [],
+    keep: true
   };
 
   if (recipientAccount.address === state.profile.address) {
@@ -3128,7 +3370,11 @@ function absorbReservedOwnerAccounts(ownerAccount) {
 }
 
 function persistAccounts() {
-  localStorage.setItem(accountsKey, JSON.stringify(state.accounts));
+  try {
+    localStorage.setItem(accountsKey, JSON.stringify(state.accounts));
+  } catch (error) {
+    showToast("Browser storage is full. Delete mail or upgrade backend storage.");
+  }
 }
 
 function persistCurrentMailbox() {
@@ -3163,6 +3409,16 @@ function ensureAccountDefaults(account) {
     account.mailbox = makeStarterMailbox(account.address);
     changed = true;
   }
+  account.mailbox.forEach((message) => {
+    if (message.keep === undefined) {
+      message.keep = true;
+      changed = true;
+    }
+    if (!Array.isArray(message.attachments)) {
+      message.attachments = [];
+      changed = true;
+    }
+  });
 
   if (!account.addressColors || typeof account.addressColors !== "object") {
     account.addressColors = {};
@@ -3428,6 +3684,62 @@ function localPart(address) {
 
 function cleanText(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function aiMessageSummary(message) {
+  const text = cleanText(message.body || "");
+  const firstLine = text ? text.slice(0, 140) : "No written body.";
+  const attachmentCount = (message.attachments || []).length;
+  return `AI summary: ${message.subject || "No subject"} from ${message.from}. ${firstLine}${text.length > 140 ? "..." : ""}${attachmentCount ? ` Includes ${attachmentCount} picture${attachmentCount === 1 ? "" : "s"}.` : ""}`;
+}
+
+function describeAttachment(attachment) {
+  const name = attachment.name || "image";
+  const type = attachment.type || "image";
+  const size = formatBytes(attachment.size || 0);
+  return `AI picture note: ${name} is a ${type} file (${size}) and is ready to view inside cryptedmail.`;
+}
+
+function mailboxStorageUsed(account = state.profile) {
+  if (!account) {
+    return 0;
+  }
+
+  return JSON.stringify(account.mailbox || []).length;
+}
+
+function planStorageLimitBytes(plan = state.profile?.plan || "starter") {
+  if (isOwnerAccount() || plan === "vault") {
+    return 1024 ** 4;
+  }
+  if (plan === "plus") {
+    return 100 * 1024 ** 3;
+  }
+  return 500 * 1024 ** 2;
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let size = value;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size >= 10 || unit === 0 ? Math.round(size) : size.toFixed(1)} ${units[unit]}`;
+}
+
+function renderStorageMeter(plan = state.profile?.plan || "starter") {
+  if (!els.storageMeterFill || !state.profile) {
+    return;
+  }
+  const used = mailboxStorageUsed(state.profile);
+  const limit = planStorageLimitBytes(plan);
+  const percent = Math.min(100, Math.max(0.5, (used / limit) * 100));
+  els.storageMeterLabel.textContent = `${isOwnerAccount() ? "Owner" : planLabel(plan)} storage`;
+  els.storageMeterText.textContent = `${formatBytes(used)} used of ${formatBytes(limit)}`;
+  els.storageMeterFill.style.width = `${percent}%`;
 }
 
 function generateHandle() {

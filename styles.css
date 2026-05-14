@@ -2007,6 +2007,56 @@ body.vault-prestige .plan-dashboard {
   line-height: 1.45;
 }
 
+.storage-meter {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(118, 216, 255, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(118, 216, 255, 0.08), transparent 62%),
+    #050a07;
+}
+
+.storage-meter div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.storage-meter strong,
+.storage-meter span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.storage-meter strong {
+  color: #effff4;
+}
+
+.storage-meter span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.storage-meter-track {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #020403;
+}
+
+.storage-meter-track span {
+  display: block;
+  width: 1%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--cyan), var(--gold));
+}
+
 .address-manager {
   display: grid;
   gap: 9px;
@@ -2520,6 +2570,85 @@ body.is-owner .owner-hero-banner {
   grid-template-columns: 1fr;
 }
 
+.ai-compose-tools,
+.preview-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.preview-actions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.attachment-preview-list,
+.attachment-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.attachment-preview-list div,
+.attachment-gallery figure {
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid rgba(118, 216, 255, 0.24);
+  border-radius: 8px;
+  background: #050a07;
+}
+
+.attachment-preview-list img,
+.attachment-gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.attachment-preview-list span,
+.attachment-gallery figcaption,
+.ai-inline-note {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.keep-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 209, 102, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 209, 102, 0.06);
+}
+
+.keep-toggle input {
+  width: 18px;
+  min-height: 18px;
+  margin-top: 3px;
+  accent-color: var(--gold);
+}
+
+.keep-toggle strong,
+.keep-toggle small {
+  display: block;
+}
+
+.keep-toggle small {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .compose-panel.is-popped {
   border-color: var(--line-hot);
   box-shadow: 0 0 0 3px rgba(61, 245, 141, 0.2), 0 24px 90px rgba(0, 0, 0, 0.75);
@@ -2947,7 +3076,11 @@ body.is-owner .owner-hero-banner {
   .tip-controls,
   .admin-action-grid,
   .owner-action-grid,
-  .owner-metric-grid {
+  .owner-metric-grid,
+  .ai-compose-tools,
+  .preview-actions,
+  .attachment-preview-list,
+  .attachment-gallery {
     grid-template-columns: 1fr;
   }
 
