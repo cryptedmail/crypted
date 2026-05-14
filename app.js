@@ -1,5 +1,5 @@
 const brandName = "cryptedmail";
-const appVersion = "visual-polish-20260514";
+const appVersion = "owner-command-20260514";
 const mailDomain = "cryptedmail.com";
 const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
@@ -132,7 +132,9 @@ const els = {
   vaultXpButton: document.querySelector("#vaultXpButton"),
   vaultAdminStatus: document.querySelector("#vaultAdminStatus"),
   ownerTools: document.querySelector("#ownerTools"),
+  ownerMetricGrid: document.querySelector("#ownerMetricGrid"),
   ownerSupportQueue: document.querySelector("#ownerSupportQueue"),
+  ownerAuditLog: document.querySelector("#ownerAuditLog"),
   ownerAdminStatus: document.querySelector("#ownerAdminStatus"),
   ownerVersionBadge: document.querySelector("#ownerVersionBadge"),
   ownerGrantVaultButton: document.querySelector("#ownerGrantVaultButton"),
@@ -2140,10 +2142,11 @@ function renderOwnerTools() {
   if (els.ownerVersionBadge) {
     els.ownerVersionBadge.textContent = `Owner console active - ${appVersion}`;
   }
+  renderOwnerMetrics();
   els.ownerSupportQueue.innerHTML = "";
   state.profile.supportQueue.forEach((ticket) => {
     const row = document.createElement("article");
-    row.className = `owner-ticket ${ticket.status === "Resolved" ? "is-resolved" : ""}`;
+    row.className = `owner-ticket ${ticket.status === "Resolved" ? "is-resolved" : ""} ${ticket.status === "Frozen" ? "is-frozen" : ""}`;
 
     const title = document.createElement("strong");
     title.textContent = `${ticket.id} · ${ticket.subject}`;
@@ -2156,8 +2159,51 @@ function renderOwnerTools() {
     els.ownerSupportQueue.append(row);
   });
 
-  els.ownerAdminStatus.innerHTML = `<strong>${state.profile.ownerAdminStatus || "Owner controls ready."}</strong><p>${openSupportTicketCount()} open support tickets. ${state.profile.ownerAudit.length} owner audit events saved locally.</p>`;
+  renderOwnerAuditLog();
+  const frozenCount = (state.profile.ownerFrozenAddresses || []).length;
+  els.ownerAdminStatus.innerHTML = `<strong>${state.profile.ownerAdminStatus || "Owner controls ready."}</strong><p>${openSupportTicketCount()} open support tickets. ${state.profile.ownerAudit.length} audit events. ${frozenCount} frozen addresses.</p>`;
   els.ownerSystemModeButton.textContent = state.profile.ownerMaintenance ? "Maintenance on" : "Maintenance mode";
+}
+
+function renderOwnerMetrics() {
+  if (!els.ownerMetricGrid || !state.profile) {
+    return;
+  }
+
+  const metrics = [
+    ["Target", currentSendingAddress()],
+    ["Open tickets", String(openSupportTicketCount())],
+    ["Mode", state.profile.ownerMaintenance ? "Maintenance" : "Live"],
+    ["Frozen", String((state.profile.ownerFrozenAddresses || []).length)]
+  ];
+
+  els.ownerMetricGrid.innerHTML = "";
+  metrics.forEach(([label, value]) => {
+    const tile = document.createElement("div");
+    const span = document.createElement("span");
+    span.textContent = label;
+    const strong = document.createElement("strong");
+    strong.textContent = value;
+    tile.append(span, strong);
+    els.ownerMetricGrid.append(tile);
+  });
+}
+
+function renderOwnerAuditLog() {
+  if (!els.ownerAuditLog || !state.profile) {
+    return;
+  }
+
+  els.ownerAuditLog.innerHTML = "";
+  state.profile.ownerAudit.slice(0, 5).forEach((event) => {
+    const row = document.createElement("article");
+    const strong = document.createElement("strong");
+    strong.textContent = event.id || "AUD";
+    const span = document.createElement("span");
+    span.textContent = `${event.action} - ${event.address || ownerAddress}`;
+    row.append(strong, span);
+    els.ownerAuditLog.append(row);
+  });
 }
 
 function openSupportTicketCount() {
@@ -2176,6 +2222,8 @@ function runOwnerAction(action) {
   applyOwnerDefaults(state.profile);
   const selected = currentSendingAddress();
   let status = "Owner action completed";
+  let mailSubject = "Owner action completed";
+  let mailBody = "";
 
   if (action === "grant-vault") {
     state.profile.plan = "vault";
@@ -2187,27 +2235,41 @@ function runOwnerAction(action) {
       verifiedAt: new Date().toISOString()
     };
     seedPlanAddresses("vault");
-    status = "Owner Vault grant applied.";
+    status = `Vault owner powers refreshed for ${selected}.`;
+    mailSubject = "Owner Vault grant applied";
+    mailBody = `${selected} now has owner Vault status, unlimited reserved aliases, 1TB storage, address colors, and admin controls.`;
   }
 
   if (action === "verify-payment") {
-    status = "Manual payment verification logged for review.";
+    state.profile.ownerVerifiedPayments = Array.isArray(state.profile.ownerVerifiedPayments) ? state.profile.ownerVerifiedPayments : [];
+    state.profile.ownerVerifiedPayments.unshift({
+      id: `PAY-${Date.now().toString().slice(-6)}`,
+      address: selected,
+      amount: "Manual owner review",
+      at: new Date().toISOString()
+    });
+    status = `Manual payment verification logged for ${selected}.`;
+    mailSubject = "Payment verification logged";
+    mailBody = `Owner mode logged a manual payment review for ${selected}. Use this for crypto/card/NFT support cases before unlocking premium access.`;
   }
 
   if (action === "freeze-address") {
+    state.profile.ownerFrozenAddresses = Array.isArray(state.profile.ownerFrozenAddresses) ? state.profile.ownerFrozenAddresses : [];
+    if (!state.profile.ownerFrozenAddresses.includes(selected)) {
+      state.profile.ownerFrozenAddresses.unshift(selected);
+    }
     state.profile.addressColors[selected] = "#ff4d61";
-    state.mailbox.unshift({
-      id: cryptoRandomId(),
-      folder: "inbox",
+    state.profile.supportQueue.unshift({
+      id: `SUP-${Date.now().toString().slice(-4)}`,
       from: `abuse@${mailDomain}`,
-      to: selected,
-      subject: "Owner freeze marker",
-      description: `${selected} is marked for owner review.`,
-      body: "Owner mode marked this address as frozen for abuse or support review. This is a demo control and does not delete mail.",
-      sentAt: new Date().toISOString(),
-      security: "Owner"
+      subject: "Frozen address review",
+      priority: "Critical",
+      status: "Frozen",
+      detail: `${selected} was frozen by owner command center for abuse/support review.`
     });
     status = `Freeze marker applied to ${selected}.`;
+    mailSubject = "Owner freeze marker";
+    mailBody = "Owner mode marked this address as frozen for abuse or support review. This is a demo control and does not delete mail.";
   }
 
   if (action === "resolve-support") {
@@ -2215,43 +2277,64 @@ function runOwnerAction(action) {
     if (nextTicket) {
       nextTicket.status = "Resolved";
       status = `${nextTicket.id} resolved.`;
+      mailSubject = "Support ticket resolved";
+      mailBody = `${nextTicket.id} (${nextTicket.subject}) was resolved by owner mode.`;
     } else {
       status = "No open support tickets left.";
+      mailSubject = "Support queue already clear";
+      mailBody = "Owner command center checked the queue and found no open support tickets.";
     }
   }
 
   if (action === "export-support") {
     const openTickets = state.profile.supportQueue.filter((ticket) => ticket.status !== "Resolved").length;
-    state.mailbox.unshift({
-      id: cryptoRandomId(),
-      folder: "inbox",
-      from: `support@${mailDomain}`,
-      to: ownerAddress,
-      subject: "Owner support export",
-      description: `${openTickets} open tickets exported to owner audit.`,
-      body: state.profile.supportQueue.map((ticket) => `${ticket.id}: ${ticket.status} · ${ticket.priority} · ${ticket.subject}`).join("\n"),
-      sentAt: new Date().toISOString(),
-      security: "Owner export"
-    });
+    const exportText = state.profile.supportQueue.map((ticket) => `${ticket.id}: ${ticket.status} - ${ticket.priority} - ${ticket.subject} - ${ticket.from}`).join("\n");
+    els.encryptedOutput.value = exportText;
+    els.readerPaste.value = exportText;
     status = "Support queue exported into the owner inbox.";
+    mailSubject = "Owner support export";
+    mailBody = `${openTickets} open tickets exported.\n\n${exportText || "No tickets in queue."}`;
   }
 
   if (action === "system-mode") {
     state.profile.ownerMaintenance = !state.profile.ownerMaintenance;
     status = state.profile.ownerMaintenance ? "Maintenance mode enabled for demo support." : "Maintenance mode disabled.";
+    mailSubject = state.profile.ownerMaintenance ? "Maintenance mode enabled" : "Maintenance mode disabled";
+    mailBody = state.profile.ownerMaintenance
+      ? "Owner mode is now marking the platform as in support/maintenance mode for demo operations."
+      : "Owner mode returned the platform to live/demo-ready status.";
   }
 
-  state.profile.ownerAdminStatus = status;
-  state.profile.ownerAudit.unshift({
-    id: `AUD-${Date.now().toString().slice(-6)}`,
-    action: status,
-    at: new Date().toISOString(),
-    address: selected
-  });
+  recordOwnerAction(status, selected, mailSubject, mailBody);
   persistCurrentMailbox();
   persistCurrentProfile();
   render();
   showToast(status);
+}
+
+function recordOwnerAction(status, selected, mailSubject, mailBody) {
+  const auditId = `AUD-${Date.now().toString().slice(-6)}`;
+  state.profile.ownerAdminStatus = status;
+  state.profile.ownerAudit.unshift({
+    id: auditId,
+    action: status,
+    at: new Date().toISOString(),
+    address: selected
+  });
+  const message = {
+    id: cryptoRandomId(),
+    folder: "inbox",
+    from: `owner-system@${mailDomain}`,
+    to: selected,
+    subject: mailSubject,
+    description: `${auditId} - ${status}`,
+    body: mailBody || status,
+    sentAt: new Date().toISOString(),
+    security: "Owner"
+  };
+  state.mailbox.unshift(message);
+  state.selectedFolder = "inbox";
+  state.selectedId = message.id;
 }
 
 function renderAddressFilters() {
@@ -2978,6 +3061,14 @@ function applyOwnerDefaults(account) {
         at: new Date().toISOString()
       }
     ];
+    changed = true;
+  }
+  if (!Array.isArray(account.ownerFrozenAddresses)) {
+    account.ownerFrozenAddresses = [];
+    changed = true;
+  }
+  if (!Array.isArray(account.ownerVerifiedPayments)) {
+    account.ownerVerifiedPayments = [];
     changed = true;
   }
   if (!account.ownerAdminStatus) {

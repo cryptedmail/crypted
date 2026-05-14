@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>cryptedmail</title>
-    <link rel="stylesheet" href="styles.css?v=visual-polish-20260514">
+    <link rel="stylesheet" href="styles.css?v=owner-command-20260514">
   </head>
   <body class="is-logged-out">
     <div class="app-shell">
       <header class="site-header">
         <a class="brand" id="refreshBrand" href="index.html" aria-label="Open cryptedmail mailbox home">
           <span class="brand-mark" aria-hidden="true">
-            <img class="brand-logo-img" src="assets/cryptedmail-owl-logo.png?v=visual-polish-20260514" alt="">
+            <img class="brand-logo-img" src="assets/cryptedmail-owl-logo.png?v=owner-command-20260514" alt="">
             <svg class="crypted-logo" viewBox="0 0 128 128" focusable="false" shape-rendering="geometricPrecision">
               <path class="logo-envelope" d="M17 75h94v34c0 5-4 9-9 9H26c-5 0-9-4-9-9V75Z"></path>
               <path class="logo-envelope-fold" d="M18 77 64 104l46-27M18 116l32-28M110 116 78 88"></path>
@@ -674,6 +674,13 @@
                   <span class="status-chip" id="planBadge">Starter</span>
                 </div>
                 <p id="planToolsSummary">Type the first part only. cryptedmail finishes the address for you.</p>
+                <div class="storage-meter" aria-label="Mailbox storage usage">
+                  <div>
+                    <strong id="storageMeterLabel">Storage</strong>
+                    <span id="storageMeterText">0 KB used</span>
+                  </div>
+                  <div class="storage-meter-track"><span id="storageMeterFill"></span></div>
+                </div>
                 <div class="address-manager">
                   <label for="aliasHandleInput">New disposable address</label>
                   <div class="alias-builder">
@@ -723,6 +730,24 @@
 
                   <label for="bodyInput">Message</label>
                   <textarea id="bodyInput" rows="8" placeholder="Type your email here"></textarea>
+
+                  <div class="ai-compose-tools" aria-label="AI compose tools">
+                    <button class="ghost-button compact" id="aiSubjectButton" type="button">AI subject</button>
+                    <button class="ghost-button compact" id="aiPolishButton" type="button">AI polish</button>
+                    <button class="ghost-button compact" id="aiPrivacyButton" type="button">AI privacy scan</button>
+                  </div>
+
+                  <label for="attachmentInput">Pictures</label>
+                  <input id="attachmentInput" type="file" accept="image/*" multiple>
+                  <div class="attachment-preview-list" id="attachmentPreviewList" aria-label="Selected picture previews"></div>
+
+                  <label class="keep-toggle" for="keepMessageToggle">
+                    <input id="keepMessageToggle" type="checkbox" checked>
+                    <span>
+                      <strong>Keep a copy in my mailbox</strong>
+                      <small>Turn off for one-time messages you only want to send/export.</small>
+                    </span>
+                  </label>
 
                   <label class="encrypt-toggle" for="encryptToggle">
                     <input id="encryptToggle" type="checkbox" checked>
@@ -801,7 +826,14 @@
                     <button class="ghost-button compact" id="ownerSystemModeButton" type="button">Maintenance mode</button>
                   </div>
 
+                  <div class="owner-metric-grid" id="ownerMetricGrid" aria-label="Owner command metrics"></div>
+
                   <div class="owner-support-queue" id="ownerSupportQueue" aria-label="Owner support queue"></div>
+
+                  <div class="owner-audit-panel">
+                    <strong>Owner audit</strong>
+                    <div class="owner-audit-log" id="ownerAuditLog" aria-label="Owner audit log"></div>
+                  </div>
 
                   <div class="admin-status owner-status" id="ownerAdminStatus">
                     <strong>Owner controls ready.</strong>
@@ -840,6 +872,12 @@
                   <strong>Welcome to cryptedmail.</strong>
                   <p>Sign in, send an email, copy the encrypted block, and paste it into the reader.</p>
                 </article>
+                <div class="preview-actions" id="previewActions" hidden>
+                  <button class="ghost-button compact" id="previewKeepButton" type="button">Keep saved</button>
+                  <button class="ghost-button compact" id="previewAiSummaryButton" type="button">AI summary</button>
+                  <button class="ghost-button compact" id="previewImageAiButton" type="button">AI describe pics</button>
+                  <button class="deactivate-button compact" id="previewDeleteButton" type="button">Delete</button>
+                </div>
               </aside>
             </div>
           </div>
