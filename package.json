@@ -7,6 +7,12 @@
     "start": "node server.js",
     "check": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done",
     "build": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done",
-    "deploy:ready": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done"
+    "deploy:ready": "node --check app.js && node --check server.js && for f in api/*.js; do node --check \"$f\" || exit 1; done",
+    "dev": "node server.js",
+    "dev:clean": "rm -rf .next && node server.js",
+    "reinstall": "rm -rf node_modules package-lock.json && npm install",
+    "reset:hard": "git reset --hard HEAD",
+    "status": "git status",
+    "log": "git log --oneline --max-count=15"
   }
 }
