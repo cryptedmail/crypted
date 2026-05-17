@@ -1649,22 +1649,86 @@ function sendCryptoTip() {
 async function loadDappConfig() {
   try {
     state.dappConfig = await apiGet("/api/dapp-config");
-    if (state.dappConfig?.posthog?.key && window.posthog && !window.posthog.__loaded) {
-      window.posthog.__loaded = true;
-      window.posthog.init(state.dappConfig.posthog.key, {
-        api_host: state.dappConfig.posthog.host || "https://us.i.posthog.com",
-        defaults: "2026-01-30",
-        autocapture: false,
-        capture_pageview: false,
-        capture_pageleave: false,
-        disable_session_recording: true,
-        capture_exceptions: true
-      });
+    if (state.dappConfig?.posthog?.key) {
+      const posthog = ensurePostHogStub();
+      if (!posthog.__cryptedmailInitialized) {
+        posthog.__cryptedmailInitialized = true;
+        posthog.init(state.dappConfig.posthog.key, {
+          api_host: state.dappConfig.posthog.host || "https://us.i.posthog.com",
+          defaults: "2026-01-30",
+          autocapture: false,
+          capture_pageview: false,
+          capture_pageleave: false,
+          disable_session_recording: true,
+          capture_exceptions: true
+        });
+        captureAnalytics("app_opened", { surface: state.authenticated ? "mailbox" : "marketing" });
+      }
     }
     renderDappCheckout();
   } catch (error) {
     state.dappConfig = null;
   }
+}
+
+function ensurePostHogStub() {
+  if (window.posthog?.init) {
+    return window.posthog;
+  }
+
+  const posthog = window.posthog || [];
+  window.posthog = posthog;
+
+  if (!posthog.__SV) {
+    posthog._i = [];
+    posthog.init = function init(token, config = {}, name) {
+      const instance = name ? posthog[name] = [] : posthog;
+      const methods = [
+        "capture",
+        "identify",
+        "alias",
+        "people.set",
+        "people.set_once",
+        "set_config",
+        "register",
+        "register_once",
+        "unregister",
+        "opt_out_capturing",
+        "has_opted_out_capturing",
+        "opt_in_capturing",
+        "reset",
+        "isFeatureEnabled",
+        "onFeatureFlags",
+        "group",
+        "get_distinct_id",
+        "get_session_id",
+        "captureException"
+      ];
+
+      instance.people = instance.people || [];
+      methods.forEach((method) => addPostHogStubMethod(instance, method));
+      posthog._i.push([token, config, name]);
+
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.async = true;
+      script.crossOrigin = "anonymous";
+      script.src = `${String(config.api_host || "https://us.i.posthog.com").replace(".i.posthog.com", "-assets.i.posthog.com")}/static/array.js`;
+      document.head.append(script);
+    };
+    posthog.__SV = 1;
+  }
+
+  return posthog;
+}
+
+function addPostHogStubMethod(instance, method) {
+  const parts = method.split(".");
+  const target = parts.length === 2 ? instance[parts[0]] : instance;
+  const name = parts.length === 2 ? parts[1] : parts[0];
+  target[name] = function queuePostHogCall(...args) {
+    target.push([name, ...args]);
+  };
 }
 
 async function syncBackendSubscription() {
