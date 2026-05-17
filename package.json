@@ -14,5 +14,8 @@
     "reset:hard": "git reset --hard HEAD",
     "status": "git status",
     "log": "git log --oneline --max-count=15"
+  },
+  "dependencies": {
+    "posthog-node": "^5.34.1"
   }
 }

@@ -5,7 +5,7 @@ This keeps normal email/password login and adds wallet upgrade only for blockcha
 ## Exact Value Placement
 
 - WalletConnect Project ID: put it in Vercel as `WALLETCONNECT_PROJECT_ID`, and locally in `.env` using `.env.example`.
-- WalletConnect allowlist: in WalletConnect Cloud project settings, add your deployed Vercel hostname, for example `crypted-i9mu.vercel.app`. Allowlist changes can take about 15 minutes.
+- WalletConnect allowlist: in WalletConnect Cloud project settings, add your deployed Vercel hostname, for example `crypted-live.vercel.app`. Allowlist changes can take about 15 minutes.
 - Supabase URL: put it in Vercel as `SUPABASE_URL`.
 - Supabase anon/public key: put it in Vercel as `SUPABASE_ANON_KEY`.
 - Supabase service role key: put it in Vercel as `SUPABASE_SERVICE_ROLE_KEY`. Never expose this in frontend code.
@@ -13,6 +13,7 @@ This keeps normal email/password login and adds wallet upgrade only for blockcha
 - Base RPC URL: put it in Vercel as `BASE_RPC_URL`. Public fallback is `https://mainnet.base.org`.
 - Subscription prices: edit `dapp-config.json` under `tiers.plus.priceUsdc` and `tiers.vault.priceUsdc`.
 - Premium access length: edit `premiumAccessDays` in `dapp-config.json` or set it through the admin API.
+- Optional PostHog analytics: set `POSTHOG_PROJECT_TOKEN` and `POSTHOG_HOST` only if you want privacy-minimized usage analytics.
 
 ## Test Mode
 

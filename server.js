@@ -3,8 +3,22 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { PostHog } from "posthog-node";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+let posthogClient = null;
+function getPostHogClient() {
+  if (!posthogClient && process.env.POSTHOG_PROJECT_TOKEN) {
+    posthogClient = new PostHog(process.env.POSTHOG_PROJECT_TOKEN, {
+      host: process.env.POSTHOG_HOST || "https://us.i.posthog.com",
+      flushAt: 1,
+      flushInterval: 0
+    });
+  }
+  return posthogClient;
+}
+
 const port = Number(process.env.PORT || 8787);
 const host = process.env.HOST || "127.0.0.1";
 const configPath = path.join(__dirname, "dapp-config.json");
@@ -156,6 +170,18 @@ async function routeApi(req, res, url) {
       network: verification.networkKey,
       verifiedAt: subscription.verifiedAt
     });
+    const phDistinctId = req.headers["x-posthog-distinct-id"] || txHash;
+    getPostHogClient()?.capture({
+      distinctId: phDistinctId,
+      event: "payment_verified",
+      properties: {
+        tierId,
+        tierName: tier.name,
+        amountUsdc: verification.amountUsdc,
+        network: verification.networkKey,
+        $session_id: req.headers["x-posthog-session-id"] || undefined
+      }
+    });
     sendJson(res, 200, { ok: true, user, verification });
     return;
   }
@@ -191,6 +217,18 @@ async function routeApi(req, res, url) {
     };
 
     const user = await savePremiumSubscription(email, walletAddress, subscription);
+    const phDistinctIdMembership = req.headers["x-posthog-distinct-id"] || verification.tokenAddress;
+    getPostHogClient()?.capture({
+      distinctId: phDistinctIdMembership,
+      event: "membership_verified",
+      properties: {
+        tierId,
+        tierName: tier.name,
+        network: verification.networkKey,
+        tokenType: verification.tokenType,
+        $session_id: req.headers["x-posthog-session-id"] || undefined
+      }
+    });
     sendJson(res, 200, { ok: true, user, verification });
     return;
   }
@@ -631,7 +669,11 @@ function publicConfig(config) {
       anonKey: envValue("SUPABASE_ANON_KEY")
     },
     premiumAccessDays: config.premiumAccessDays,
-    tiers: config.tiers
+    tiers: config.tiers,
+    posthog: {
+      key: envValue("POSTHOG_PROJECT_TOKEN"),
+      host: envValue("POSTHOG_HOST") || "https://us.i.posthog.com"
+    }
   };
 }
 
@@ -850,7 +892,7 @@ function sendJson(res, status, payload) {
 function setCors(res) {
   res.setHeader("access-control-allow-origin", "*");
   res.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
-  res.setHeader("access-control-allow-headers", "authorization,content-type,x-admin-token");
+  res.setHeader("access-control-allow-headers", "authorization,content-type,x-admin-token,x-posthog-distinct-id,x-posthog-session-id");
 }
 
 function requireEmail(value) {

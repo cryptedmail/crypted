@@ -5,7 +5,8 @@ const accountsKey = "cryptedmail-accounts-v2";
 const sessionKey = "cryptedmail-session-v2";
 const ownerSessionKey = "cryptedmail-owner-session-v1";
 const supabaseSessionKey = "cryptedmail-supabase-session-v1";
-const deployedApiBase = "https://crypted-i9mu.vercel.app";
+const analyticsIdKey = "cryptedmail-analytics-id-v1";
+const deployedApiBase = "https://crypted-live.vercel.app";
 const dappApiBase = window.location.protocol === "file:" ? deployedApiBase : "";
 const ownerAddress = `owner@${mailDomain}`;
 const ownerDefaultPassword = "owner1234";
@@ -445,6 +446,7 @@ function beginCryptoUpgrade(plan) {
     return;
   }
 
+  window.posthog?.capture('plan_upgrade_started', { tier, plan });
   prepareDappCheckout(tier);
 }
 
@@ -469,10 +471,12 @@ function activatePlanButton(plan, action, options = {}) {
 }
 
 function tryPlan(plan) {
+  window.posthog?.capture('plan_trial_activated', { plan });
   activatePlanButton(plan, "trial");
 }
 
 function completePurchase() {
+  window.posthog?.capture('plan_purchased', { plan: state.pendingPurchasePlan, paymentMethod: state.pendingPaymentMethod });
   const checkoutAddress = addressFromInput(els.checkoutEmail.value, `${state.pendingPurchasePlan}-member`);
   activatePlanButton(state.pendingPurchasePlan, "purchase", {
     address: uniqueAccountAddress(checkoutAddress),
@@ -650,6 +654,8 @@ async function handleAuthSubmit(event) {
     if (await continuePendingUpgradeAfterAuth()) {
       return;
     }
+    identifyAnalytics(account.plan);
+    captureAnalytics("account_signed_up", { plan: account.plan, authMode: state.authMode });
     showToast(`${address} created`);
     render();
     return;
@@ -680,6 +686,8 @@ async function handleAuthSubmit(event) {
     if (await continuePendingUpgradeAfterAuth()) {
       return;
     }
+    identifyAnalytics(state.accounts[address].plan);
+    captureAnalytics("account_signed_up", { plan: state.accounts[address].plan, authMode: "login" });
     showToast("New mailbox created");
     render();
     return;
@@ -696,6 +704,8 @@ async function handleAuthSubmit(event) {
   if (await continuePendingUpgradeAfterAuth()) {
     return;
   }
+  identifyAnalytics(account?.plan || "starter");
+  captureAnalytics("account_logged_in", { plan: account?.plan || "starter" });
   showToast("Mailbox unlocked");
   render();
 }
@@ -787,6 +797,12 @@ async function handleComposeSubmit(event) {
   message.encrypted = deliveryBlock;
   state.mailbox.unshift(message);
   deliverLocalCopy(message, deliveryBlock, recipientAccount);
+  window.posthog?.capture(wantsEncryption ? 'email_encrypted_sent' : 'email_sent', {
+    encrypted: wantsEncryption,
+    hasAttachments: attachments.length > 0,
+    keepCopy: message.keep,
+    recipientIsLocal: Boolean(recipientAccount)
+  });
   state.selectedFolder = "sent";
   state.selectedId = message.id;
   persistCurrentMailbox();
@@ -1301,6 +1317,7 @@ async function connectWallet() {
     state.profile.upgradeStatus = state.profile.upgradeStatus || "wallet-connected";
     localStorage.setItem(walletLinkKey(state.profile.address), wallet);
     persistCurrentProfile();
+    captureAnalytics("wallet_connected", { provider: state.connectedWalletProvider || "unknown" });
     render();
     if (state.pendingCheckoutTier) {
       setDappStatus("Wallet connected. Checkout is ready.", "Ready");
@@ -1484,6 +1501,18 @@ function sendCryptoTip() {
 async function loadDappConfig() {
   try {
     state.dappConfig = await apiGet("/api/dapp-config");
+    if (state.dappConfig?.posthog?.key && window.posthog && !window.posthog.__loaded) {
+      window.posthog.__loaded = true;
+      window.posthog.init(state.dappConfig.posthog.key, {
+        api_host: state.dappConfig.posthog.host || "https://us.i.posthog.com",
+        defaults: "2026-01-30",
+        autocapture: false,
+        capture_pageview: false,
+        capture_pageleave: false,
+        disable_session_recording: true,
+        capture_exceptions: true
+      });
+    }
     renderDappCheckout();
   } catch (error) {
     state.dappConfig = null;
@@ -1770,6 +1799,7 @@ async function sendUsdcPayment() {
     setDappStatus("Payment verified. Premium unlocked.", "Verified");
     showToast(`${result.user.subscription.tierName} unlocked`);
   } catch (error) {
+    window.posthog?.captureException(error, { event: 'usdc_payment_failed' });
     setDappStatus(error.message || "USDC payment failed", "Error");
     showToast("USDC payment failed");
   } finally {
@@ -1915,9 +1945,16 @@ async function apiGet(pathname) {
 }
 
 async function apiPost(pathname, body) {
+  const phHeaders = {};
+  if (window.posthog) {
+    const distinctId = window.posthog.get_distinct_id?.() || getAnalyticsDistinctId();
+    const sessionId = window.posthog.get_session_id?.();
+    if (distinctId) phHeaders["x-posthog-distinct-id"] = distinctId;
+    if (sessionId) phHeaders["x-posthog-session-id"] = sessionId;
+  }
   const response = await fetch(`${dappApiBase}${pathname}`, {
     method: "POST",
-    headers: { "content-type": "application/json", ...authHeaders() },
+    headers: { "content-type": "application/json", ...authHeaders(), ...phHeaders },
     body: JSON.stringify(body)
   });
   const payload = await response.json();
@@ -2313,6 +2350,7 @@ function addPlanAddress() {
   state.addressFilter = "all";
   els.aliasHandleInput.value = "";
   persistCurrentProfile();
+  window.posthog?.capture('alias_address_added', { plan, addressCount: state.profile.addresses.length });
   render();
   showToast(`${address} added`);
 }
@@ -2477,6 +2515,7 @@ function burnPlanAddress(address) {
   });
 
   persistCurrentMailbox();
+  window.posthog?.capture('alias_address_burned', { remainingAddresses: state.profile.addresses.length });
   render();
   showToast(`${address} burned`);
 }
@@ -2726,6 +2765,8 @@ function deactivateAccount() {
   els.encryptedOutput.value = "";
   els.readerPaste.value = "";
   els.readerOutput.innerHTML = "<strong>No encrypted message opened yet.</strong><p>Encrypted blocks only open for the sender or intended cryptedmail recipient.</p>";
+  window.posthog?.capture('account_deactivated');
+  window.posthog?.reset();
   closeDeactivateConfirm();
   setAuthMode("signup");
   render();
@@ -3589,6 +3630,23 @@ function showToast(message) {
   state.toastTimer = window.setTimeout(() => {
     els.toast.classList.remove("is-visible");
   }, 2200);
+}
+
+function getAnalyticsDistinctId() {
+  let id = localStorage.getItem(analyticsIdKey);
+  if (!id) {
+    id = window.crypto?.randomUUID?.() || `cryptedmail_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(analyticsIdKey, id);
+  }
+  return id;
+}
+
+function identifyAnalytics(plan) {
+  window.posthog?.identify(getAnalyticsDistinctId(), { plan });
+}
+
+function captureAnalytics(event, properties = {}) {
+  window.posthog?.capture(event, properties);
 }
 
 function playSendPulse(encrypted = false) {
